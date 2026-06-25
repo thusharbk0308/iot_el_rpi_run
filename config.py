@@ -19,6 +19,12 @@ SERVO_GPIO_PIN = 18             # GPIO pin number for Raspberry Pi SG90 servo si
 SERVO_OPEN_ANGLE = 90           # Open angle in degrees
 SERVO_CLOSED_ANGLE = 0          # Closed angle in degrees
 
+# Servo pulse widths (tune these if your servo over/under-rotates)
+# SG90 full range: 0.5ms (0 deg) → 2.5ms (180 deg)
+# To get 90 deg physical rotation: max_pulse = 1.5ms
+SERVO_MIN_PULSE_WIDTH = 0.5 / 1000   # Pulse width for CLOSED angle (0 deg)
+SERVO_MAX_PULSE_WIDTH = 1.5 / 1000   # Pulse width for OPEN angle  (90 deg)
+
 # Camera stream parameters
 CAMERA_RES = (640, 480)
 CAMERA_FPS = 30

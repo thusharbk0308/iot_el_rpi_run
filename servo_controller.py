@@ -1,5 +1,6 @@
 import os
 import sys
+import config
 
 # Power Independence Design Note:
 # The software logic controls the SG90/MG90S servo using a standard PWM signal 
@@ -19,12 +20,13 @@ class ServoController:
     Maintains lock state and controls physical servo rotation using gpiozero.
     Implements a strict command guard to prevent duplicate PWM commands.
     """
-    def __init__(self, pin=18, min_angle=0, max_angle=90, min_pulse=0.5/1000, max_pulse=2.5/1000):
+    def __init__(self, pin=18, min_angle=0, max_angle=90, min_pulse=None, max_pulse=None):
         self.pin = pin
         self.min_angle = min_angle
         self.max_angle = max_angle
-        self.min_pulse = min_pulse
-        self.max_pulse = max_pulse
+        # Read pulse widths from config so they can be tuned without touching this file
+        self.min_pulse = min_pulse if min_pulse is not None else config.SERVO_MIN_PULSE_WIDTH
+        self.max_pulse = max_pulse if max_pulse is not None else config.SERVO_MAX_PULSE_WIDTH
         
         self.is_open = False  # Internal state guard to prevent duplicate commands
         self.servo = None
