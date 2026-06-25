@@ -1,4 +1,7 @@
 import os
+import ssl
+# Bypass SSL verification to download pre-trained weights on networks/machines with certificate issues
+ssl._create_default_https_context = ssl._create_unverified_context
 import cv2
 import torch
 import numpy as np
