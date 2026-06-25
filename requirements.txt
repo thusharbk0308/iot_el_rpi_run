@@ -5,3 +5,4 @@ facenet-pytorch
 tqdm
 flask
 numpy
+gpiozero
