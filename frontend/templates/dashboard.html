@@ -5,66 +5,133 @@
 
 <!-- Hero -->
 <div class="hero">
+  <div class="hero-bg-glow"></div>
   <h1 class="hero-title">FACE <span>VALUE</span></h1>
   <p class="hero-sub">
-    An intelligent, hardware-integrated edge security application using FaceNet
+    An intelligent, hardware-integrated edge security application utilizing FaceNet
     face embeddings, MTCNN facial detection, and high-precision physical access controls.
   </p>
 </div>
 
-<!-- Stats bar -->
-<div class="stats-bar">
-  <div class="stat-item">
-    <div class="stat-key">System State</div>
-    <div class="stat-val red" id="h-state">LOCKED</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-key">Lock Status</div>
-    <div class="stat-val red" id="h-lock">CLOSED</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-key">Active Users</div>
-    <div class="stat-val" id="h-users">{{ num_users }}</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-key">Engine FPS</div>
-    <div class="stat-val blue" id="h-fps">—</div>
-  </div>
-  <div class="stat-clock" id="h-clock"></div>
-</div>
-
-<!-- Feature cards -->
-<div class="feature-grid">
-
-  <a href="/camera" class="feature-card" style="text-decoration:none;color:inherit;">
-    <div class="feature-icon"><i class="fas fa-camera"></i></div>
-    <div class="feature-title">Live Camera Feed</div>
-    <div class="feature-desc">
-      View the live, annotated feed with real-time target bounding boxes, landmark tracking,
-      and active confirmation timers.
+<!-- Main Grid Layout -->
+<div class="dashboard-grid-layout">
+  
+  <!-- Left Side: Stats and Controls -->
+  <div class="dashboard-primary">
+    
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-key">System State</div>
+        <div class="stat-val red" id="h-state">LOCKED</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-key">Lock Status</div>
+        <div class="stat-val red" id="h-lock">CLOSED</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-key">Active Users</div>
+        <div class="stat-val" id="h-users">{{ num_users }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-key">Engine FPS</div>
+        <div class="stat-val blue" id="h-fps">—</div>
+      </div>
+      <div class="stat-clock" id="h-clock"></div>
     </div>
-    <div class="feature-link">Open Feed <i class="fas fa-arrow-right"></i></div>
-  </a>
 
-  <a href="/control" class="feature-card" style="text-decoration:none;color:inherit;">
-    <div class="feature-icon"><i class="fas fa-lock"></i></div>
-    <div class="feature-title">Control Panel</div>
-    <div class="feature-desc">
-      Manually command the servo motor to unlock or lock the door, monitor live physical state
-      transitions, and view controller status dials.
-    </div>
-    <div class="feature-link">Open Console <i class="fas fa-arrow-right"></i></div>
-  </a>
+    <!-- Quick Security Controls Card -->
+    <div class="card home-controls-card">
+      <div class="card-glow-overlay"></div>
+      <div class="card-header-styled">
+        <div class="card-header-icon"><i class="fas fa-shield-halved"></i></div>
+        <div>
+          <div class="card-title">Quick Security Controls</div>
+          <div class="card-sub">Instantly override or restore automatic lock operation</div>
+        </div>
+      </div>
 
-  <a href="/logs" class="feature-card" style="text-decoration:none;color:inherit;">
-    <div class="feature-icon"><i class="fas fa-list"></i></div>
-    <div class="feature-title">Access Logs</div>
-    <div class="feature-desc">
-      Inspect transaction logs, view authentication results, verify confidence scores,
-      and analyze access historical records.
+      <div class="home-ctrl-grid">
+        <!-- Control actions -->
+        <div class="home-ctrl-action-block">
+          <div class="section-label-high">SYSTEM ACCESS MODE</div>
+          <div class="mode-toggle-container flex-toggle">
+            <button class="mode-btn-styled" id="h-btn-mode-auto" onclick="setAutoMode()">
+              <span class="mode-dot"></span>
+              <span class="mode-name">AUTO</span>
+            </button>
+            <button class="mode-btn-styled" id="h-btn-mode-manual" onclick="enterManualMode()">
+              <span class="mode-dot"></span>
+              <span class="mode-name">MANUAL</span>
+            </button>
+          </div>
+          
+          <div class="home-disclaimer-wrap">
+            <p class="lock-disclaimer-text" id="h-lock-disclaimer">
+              Access is automated by facial recognition.
+            </p>
+          </div>
+        </div>
+
+        <!-- Lock Control Override Buttons -->
+        <div class="home-ctrl-buttons-block">
+          <div class="section-label-high">MANUAL POSITION</div>
+          <div class="lock-buttons-grid mini-buttons">
+            <button class="lock-btn-styled lock-unlock-btn" id="h-btn-unlock" onclick="doManualUnlock()">
+              <span class="btn-icon"><i class="fas fa-lock-open"></i></span>
+              <span class="btn-text">UNLOCK</span>
+            </button>
+
+            <button class="lock-btn-styled lock-lock-btn" id="h-btn-lock" onclick="doManualLock()">
+              <span class="btn-icon"><i class="fas fa-lock"></i></span>
+              <span class="btn-text">LOCK</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning message inline -->
+      <div id="h-warning-banner" class="manual-warning-banner-mini" style="display: none;">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span>Manual override active. Recognition FSM bypassed.</span>
+      </div>
     </div>
-    <div class="feature-link">Open Logs <i class="fas fa-arrow-right"></i></div>
-  </a>
+
+  </div>
+  
+  <!-- Right Side: Navigation Feature Shortcuts -->
+  <div class="dashboard-sidebar">
+    <div class="sidebar-shortcuts-title">Security Navigation</div>
+    
+    <div class="feature-vertical-list">
+      <a href="/camera" class="feature-link-item">
+        <div class="feature-item-icon blue-theme"><i class="fas fa-camera"></i></div>
+        <div class="feature-item-content">
+          <div class="feature-item-title">Live Camera Feed</div>
+          <p class="feature-item-desc">View real-time detections and landmark overlays</p>
+        </div>
+        <i class="fas fa-chevron-right chevron-next"></i>
+      </a>
+
+      <a href="/control" class="feature-link-item">
+        <div class="feature-item-icon purple-theme"><i class="fas fa-lock"></i></div>
+        <div class="feature-item-content">
+          <div class="feature-item-title">Console Manager</div>
+          <p class="feature-item-desc">Full telemetry dashboard and system settings</p>
+        </div>
+        <i class="fas fa-chevron-right chevron-next"></i>
+      </a>
+
+      <a href="/logs" class="feature-link-item">
+        <div class="feature-item-icon green-theme"><i class="fas fa-list"></i></div>
+        <div class="feature-item-content">
+          <div class="feature-item-title">Access Log Archives</div>
+          <p class="feature-item-desc">Browse visitor histories and export logs</p>
+        </div>
+        <i class="fas fa-chevron-right chevron-next"></i>
+      </a>
+    </div>
+  </div>
 
 </div>
 
@@ -72,9 +139,114 @@
 
 {% block scripts %}
 <script>
+  let _isManual = false;
+  let _lockState = 'CLOSED';
+
+  function renderHomeControl() {
+    const banner = document.getElementById('h-warning-banner');
+    const btnAuto = document.getElementById('h-btn-mode-auto');
+    const btnManual = document.getElementById('h-btn-mode-manual');
+    const btnUnlock = document.getElementById('h-btn-unlock');
+    const btnLock = document.getElementById('h-btn-lock');
+    const disclaimer = document.getElementById('h-lock-disclaimer');
+
+    // Update Mode Buttons
+    if (_isManual) {
+      if (btnAuto) btnAuto.classList.remove('active');
+      if (btnManual) btnManual.classList.add('active');
+      if (banner) banner.style.display = 'flex';
+      if (disclaimer) {
+        disclaimer.textContent = "Override active. Lock is controlled manually.";
+        disclaimer.classList.add('warning-text');
+      }
+      
+      // Enable override buttons
+      if (btnUnlock) btnUnlock.disabled = false;
+      if (btnLock) btnLock.disabled = false;
+    } else {
+      if (btnAuto) btnAuto.classList.add('active');
+      if (btnManual) btnManual.classList.remove('active');
+      if (banner) banner.style.display = 'none';
+      if (disclaimer) {
+        disclaimer.textContent = "Access is automated by facial recognition.";
+        disclaimer.classList.remove('warning-text');
+      }
+      
+      // Disable override buttons
+      if (btnUnlock) btnUnlock.disabled = true;
+      if (btnLock) btnLock.disabled = true;
+    }
+
+    // Update button active state glows
+    if (_lockState === 'OPEN') {
+      if (btnUnlock) btnUnlock.classList.add('active');
+      if (btnLock) btnLock.classList.remove('active');
+    } else {
+      if (btnUnlock) btnUnlock.classList.remove('active');
+      if (btnLock) btnLock.classList.add('active');
+    }
+  }
+
+  function doManualUnlock() {
+    if (!_isManual) return;
+    fetch('/api/manual/unlock', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          _lockState = 'OPEN';
+          renderHomeControl();
+          showToast('Door command: OPEN sent.', 'success');
+        }
+      }).catch(() => showToast('Unlock command failed.', 'danger'));
+  }
+
+  function doManualLock() {
+    if (!_isManual) return;
+    fetch('/api/manual/lock', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          _lockState = 'CLOSED';
+          renderHomeControl();
+          showToast('Door command: LOCK sent.', 'success');
+        }
+      }).catch(() => showToast('Lock command failed.', 'danger'));
+  }
+
+  function enterManualMode() {
+    fetch('/api/manual/lock', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          _isManual = true;
+          _lockState = 'CLOSED';
+          renderHomeControl();
+          showToast('Manual override mode enabled.', 'warning');
+        }
+      }).catch(() => showToast('Failed to switch to Manual Mode.', 'danger'));
+  }
+
+  function setAutoMode() {
+    fetch('/api/manual/auto', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          _isManual = false;
+          _lockState = 'CLOSED';
+          renderHomeControl();
+          showToast('Switched back to Automatic Access Control.', 'info');
+        }
+      }).catch(() => showToast('Failed to switch to Auto Mode.', 'danger'));
+  }
+
   // Home page stat polling
   function pollHome() {
     fetch('/api/stats').then(r => r.json()).then(d => {
+      // Sync local state variables
+      _isManual = d.manual_mode || false;
+      _lockState = d.manual_lock_state || 'CLOSED';
+      renderHomeControl();
+
       const stateEl = document.getElementById('h-state');
       const lockEl  = document.getElementById('h-lock');
 

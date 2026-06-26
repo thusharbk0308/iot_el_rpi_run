@@ -2,65 +2,127 @@
 {% block title %}Control Panel — Face Value{% endblock %}
 
 {% block content %}
+<!-- Page Header -->
+<div class="control-header-section">
+  <div class="control-title-main">Access Control Console</div>
+  <p class="control-subtitle-main">Override and monitor system door lock states</p>
+</div>
+
+<!-- Warning Banner for Manual Mode -->
+<div id="manual-warning-banner" class="manual-warning-banner" style="display: none;">
+  <div class="banner-glow-line"></div>
+  <div class="banner-content">
+    <div class="banner-icon-wrap">
+      <i class="fas fa-triangle-exclamation"></i>
+    </div>
+    <div class="banner-text">
+      <div class="banner-title">MANUAL OVERRIDE MODE ACTIVE</div>
+      <div class="banner-desc">Automatic Face Recognition servo trigger is completely disabled. Remotely controlled.</div>
+    </div>
+  </div>
+</div>
+
 <div class="control-layout">
 
-  <!-- Left: Manual override panel -->
-  <div class="manual-card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;">
-      <div style="text-align:left;">
-        <div class="manual-title">Manual Override</div>
-        <div class="manual-sub">Open lock remotely via API command guard</div>
-      </div>
-      <div class="mode-bar" style="margin-bottom:0;">
-        <button class="mode-pill" id="pill-auto" onclick="setAutoMode()">AUTO</button>
-        <button class="mode-pill" id="pill-manual" onclick="doManualLock()">MANUAL</button>
+  <!-- Left: Mode and Lock Controls -->
+  <div class="control-card-main card">
+    <div class="card-glow-overlay"></div>
+    <div class="card-header-styled">
+      <div class="card-header-icon"><i class="fas fa-sliders"></i></div>
+      <div>
+        <div class="card-title">Controller Settings</div>
+        <div class="card-sub">Choose operation mode and send control commands</div>
       </div>
     </div>
 
-    <!-- Big circular button -->
-    <div class="control-circle-wrap">
-      <div class="control-circle" id="ctrl-circle" onclick="handleControlClick()">
-        <div class="ctrl-icon-wrap blue" id="ctrl-icon-wrap">
-          <i class="fas fa-lock" id="ctrl-icon"></i>
+    <!-- Mode Selector -->
+    <div class="control-section-wrapper">
+      <div class="section-label-high">SYSTEM OPERATION MODE</div>
+      <div class="mode-toggle-container">
+        <button class="mode-btn-styled" id="btn-mode-auto" onclick="setAutoMode()">
+          <span class="mode-dot"></span>
+          <span class="mode-name">AUTOMATIC</span>
+        </button>
+        <button class="mode-btn-styled" id="btn-mode-manual" onclick="enterManualMode()">
+          <span class="mode-dot"></span>
+          <span class="mode-name">MANUAL OVERRIDE</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Lock Override Controls -->
+    <div class="control-section-wrapper" id="lock-controls-section">
+      <div class="section-label-high">LOCK OVERRIDE COMMANDS</div>
+      
+      <!-- Lock State Info Graphic -->
+      <div class="lock-graphic-container">
+        <div class="lock-ring-glow" id="lock-ring">
+          <div class="lock-icon-inner" id="lock-graphic-icon">
+            <i class="fas fa-lock"></i>
+          </div>
         </div>
-        <div class="ctrl-label" id="ctrl-label">OPEN DOOR</div>
+        <div class="lock-graphic-status" id="lock-graphic-status">SECURE</div>
       </div>
-    </div>
 
-    <!-- Description -->
-    <p class="control-desc" id="ctrl-desc">
-      Pressing the button above sends an encrypted signal to the physical servo motor. The door stays unlocked for 3 seconds before automated relock triggers.
-    </p>
+      <!-- Lock / Unlock Buttons -->
+      <div class="lock-buttons-grid">
+        <button class="lock-btn-styled lock-unlock-btn" id="btn-lock-unlock" onclick="doManualUnlock()">
+          <span class="btn-icon"><i class="fas fa-lock-open"></i></span>
+          <span class="btn-text-wrap">
+            <span class="btn-label-title">UNLOCK DOOR</span>
+            <span class="btn-label-sub">Command Open</span>
+          </span>
+        </button>
+
+        <button class="lock-btn-styled lock-lock-btn" id="btn-lock-lock" onclick="doManualLock()">
+          <span class="btn-icon"><i class="fas fa-lock"></i></span>
+          <span class="btn-text-wrap">
+            <span class="btn-label-title">LOCK DOOR</span>
+            <span class="btn-label-sub">Command Secure</span>
+          </span>
+        </button>
+      </div>
+      
+      <p class="lock-disclaimer-text" id="lock-disclaimer">
+        Locks are managed automatically by Face Recognition. Switch to Manual Override to enable controls.
+      </p>
+    </div>
   </div>
 
   <!-- Right: Telemetry & Status -->
-  <div class="telemetry-card">
-    <div class="telemetry-title">Telemetry &amp; Status</div>
-    <div class="telemetry-sub">Active lock controller metrics</div>
-
-    <div class="telem-grid">
-      <div class="telem-cell">
-        <div class="telem-key">Lock Position</div>
-        <div class="telem-val red" id="tl-lock">CLOSED</div>
-      </div>
-      <div class="telem-cell">
-        <div class="telem-key">Controller State</div>
-        <div class="telem-val red" id="tl-state">LOCKED</div>
-      </div>
-      <div class="telem-cell">
-        <div class="telem-key">Active Operator</div>
-        <div class="telem-val" id="tl-operator" style="color:var(--muted);">None</div>
-      </div>
-      <div class="telem-cell">
-        <div class="telem-key">Hardware Controller</div>
-        <div class="telem-val blue" id="tl-hw">SG90 Servo</div>
+  <div class="telemetry-card card">
+    <div class="card-glow-overlay"></div>
+    <div class="card-header-styled">
+      <div class="card-header-icon"><i class="fas fa-heartbeat"></i></div>
+      <div>
+        <div class="card-title">Telemetry &amp; Status</div>
+        <div class="card-sub">Live controller hardware monitoring</div>
       </div>
     </div>
 
-    <div class="telem-note">
-      <span class="telem-note-dot"></span>
+    <div class="premium-telem-grid">
+      <div class="telem-block">
+        <div class="telem-block-key">Lock Position</div>
+        <div class="telem-block-val" id="tl-lock">CLOSED</div>
+      </div>
+      <div class="telem-block">
+        <div class="telem-block-key">Controller State</div>
+        <div class="telem-block-val" id="tl-state">LOCKED</div>
+      </div>
+      <div class="telem-block">
+        <div class="telem-block-key">Active Operator</div>
+        <div class="telem-block-val" id="tl-operator">None</div>
+      </div>
+      <div class="telem-block">
+        <div class="telem-block-key">Access Mode</div>
+        <div class="telem-block-val" id="tl-mode-display">AUTOMATIC</div>
+      </div>
+    </div>
+
+    <div class="telem-note-block">
+      <i class="fas fa-circle-info"></i>
       <span id="tl-note">
-        Remote PWM Command Guard active. State transitions are monitored in log entries.
+        System active. Door lock controlled by FaceNet face embedding match verification.
       </span>
     </div>
   </div>
@@ -70,140 +132,178 @@
 
 {% block scripts %}
 <script>
-  // ── State ────────────────────────────────────────
   let _isManual = false;
   let _lockState = 'CLOSED';
 
-  // ── Elements ─────────────────────────────────────
-  const circle    = () => document.getElementById('ctrl-circle');
-  const iconWrap  = () => document.getElementById('ctrl-icon-wrap');
-  const icon      = () => document.getElementById('ctrl-icon');
-  const label     = () => document.getElementById('ctrl-label');
-  const desc      = () => document.getElementById('ctrl-desc');
-  const pillAuto  = () => document.getElementById('pill-auto');
-  const pillMan   = () => document.getElementById('pill-manual');
-
-  // ── Render UI to match current state ─────────────
   function renderControl() {
-    const c = circle(), iw = iconWrap(), ic = icon(), lb = label(), de = desc();
-    const pa = pillAuto(), pm = pillMan();
+    const banner = document.getElementById('manual-warning-banner');
+    const btnAuto = document.getElementById('btn-mode-auto');
+    const btnManual = document.getElementById('btn-mode-manual');
+    const btnUnlock = document.getElementById('btn-lock-unlock');
+    const btnLock = document.getElementById('btn-lock-lock');
+    const lockRing = document.getElementById('lock-ring');
+    const lockIcon = document.getElementById('lock-graphic-icon');
+    const lockStatusText = document.getElementById('lock-graphic-status');
+    const disclaimer = document.getElementById('lock-disclaimer');
 
-    if (!c) return;
-
-    // Pills
-    if (pa) { pa.className = 'mode-pill' + (_isManual ? '' : ' active-auto'); }
-    if (pm) { pm.className = 'mode-pill' + (_isManual ? ' active-manual' : ''); }
-
-    if (!_isManual) {
-      // AUTO mode
-      c.className  = 'control-circle';
-      if (iw) iw.className = 'ctrl-icon-wrap blue';
-      if (ic) ic.className = 'fas fa-lock';
-      if (lb) lb.textContent = 'OPEN DOOR';
-      if (de) de.textContent = 'Pressing the button above sends an encrypted signal to the physical servo motor. The door stays unlocked for 3 seconds before automated relock triggers.';
-    } else if (_lockState === 'OPEN') {
-      // MANUAL — door open
-      c.className  = 'control-circle open';
-      if (iw) iw.className = 'ctrl-icon-wrap green';
-      if (ic) ic.className = 'fas fa-lock-open';
-      if (lb) lb.textContent = 'LOCK DOOR';
-      if (de) de.textContent = 'Door is OPEN (manual override active). Click to lock the door. It will remain locked until you open it or switch back to auto mode.';
+    // Update Mode Buttons
+    if (_isManual) {
+      if (btnAuto) btnAuto.classList.remove('active');
+      if (btnManual) btnManual.classList.add('active');
+      if (banner) banner.style.display = 'block';
+      if (disclaimer) {
+        disclaimer.textContent = "Manual Override active. Use the buttons above to manually command the lock position.";
+        disclaimer.classList.add('warning-text');
+      }
+      
+      // Enable control buttons
+      if (btnUnlock) btnUnlock.disabled = false;
+      if (btnLock) btnLock.disabled = false;
     } else {
-      // MANUAL — door locked
-      c.className  = 'control-circle locked-manual';
-      if (iw) iw.className = 'ctrl-icon-wrap red';
-      if (ic) ic.className = 'fas fa-lock';
-      if (lb) lb.textContent = 'OPEN DOOR';
-      if (de) de.textContent = 'Door is LOCKED (manual override active). Click to open the door. It will remain open until you lock it or switch back to auto mode.';
+      if (btnAuto) btnAuto.classList.add('active');
+      if (btnManual) btnManual.classList.remove('active');
+      if (banner) banner.style.display = 'none';
+      if (disclaimer) {
+        disclaimer.textContent = "Lock is managed automatically by Face Recognition. Switch to Manual Override to enable controls.";
+        disclaimer.classList.remove('warning-text');
+      }
+      
+      // Disable control buttons
+      if (btnUnlock) btnUnlock.disabled = true;
+      if (btnLock) btnLock.disabled = true;
     }
-  }
 
-  // ── Handle circle click ──────────────────────────
-  function handleControlClick() {
-    if (!_isManual) {
-      // First click: enter manual, open door
-      doManualUnlock();
-    } else if (_lockState === 'OPEN') {
-      doManualLock();
+    // Update Lock Graphic representation
+    if (_lockState === 'OPEN') {
+      if (lockRing) {
+        lockRing.className = 'lock-ring-glow open-state';
+      }
+      if (lockIcon) {
+        lockIcon.innerHTML = '<i class="fas fa-lock-open"></i>';
+      }
+      if (lockStatusText) {
+        lockStatusText.textContent = 'UNLOCKED';
+        lockStatusText.className = 'lock-graphic-status open-state';
+      }
+      
+      if (btnUnlock) btnUnlock.classList.add('active');
+      if (btnLock) btnLock.classList.remove('active');
     } else {
-      doManualUnlock();
+      if (lockRing) {
+        lockRing.className = 'lock-ring-glow locked-state';
+      }
+      if (lockIcon) {
+        lockIcon.innerHTML = '<i class="fas fa-lock"></i>';
+      }
+      if (lockStatusText) {
+        lockStatusText.textContent = 'SECURE';
+        lockStatusText.className = 'lock-graphic-status locked-state';
+      }
+      
+      if (btnUnlock) btnUnlock.classList.remove('active');
+      if (btnLock) btnLock.classList.add('active');
     }
   }
 
   function doManualUnlock() {
+    if (!_isManual) return;
     fetch('/api/manual/unlock', { method: 'POST' })
       .then(r => r.json())
       .then(d => {
-        if (d.ok) { _isManual = true; _lockState = 'OPEN'; renderControl(); showToast('Door opened (manual override).', 'success'); }
-      }).catch(() => showToast('Command failed.', 'danger'));
+        if (d.ok) {
+          _lockState = 'OPEN';
+          renderControl();
+          showToast('Door command: OPEN sent.', 'success');
+        }
+      }).catch(() => showToast('Unlock command failed.', 'danger'));
   }
 
   function doManualLock() {
+    if (!_isManual) return;
     fetch('/api/manual/lock', { method: 'POST' })
       .then(r => r.json())
       .then(d => {
-        if (d.ok) { _isManual = true; _lockState = 'CLOSED'; renderControl(); showToast('Door locked (manual override).', 'success'); }
-      }).catch(() => showToast('Command failed.', 'danger'));
+        if (d.ok) {
+          _lockState = 'CLOSED';
+          renderControl();
+          showToast('Door command: LOCK sent.', 'success');
+        }
+      }).catch(() => showToast('Lock command failed.', 'danger'));
+  }
+
+  function enterManualMode() {
+    // Switch to manual mode and default to locking the door for safety
+    fetch('/api/manual/lock', { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          _isManual = true;
+          _lockState = 'CLOSED';
+          renderControl();
+          showToast('Manual override mode enabled.', 'warning');
+        }
+      }).catch(() => showToast('Failed to switch to Manual Mode.', 'danger'));
   }
 
   function setAutoMode() {
     fetch('/api/manual/auto', { method: 'POST' })
       .then(r => r.json())
       .then(d => {
-        if (d.ok) { _isManual = false; _lockState = 'CLOSED'; renderControl(); showToast('Switched to Auto Mode.', 'info'); }
-      }).catch(() => showToast('Command failed.', 'danger'));
+        if (d.ok) {
+          _isManual = false;
+          _lockState = 'CLOSED';
+          renderControl();
+          showToast('Switched back to Automatic Access Control.', 'info');
+        }
+      }).catch(() => showToast('Failed to switch to Auto Mode.', 'danger'));
   }
 
-  // ── Poll telemetry ────────────────────────────────
   function pollControl() {
     fetch('/api/stats').then(r => r.json()).then(d => {
-      // Sync local state with server (handles page refresh)
-      _isManual  = d.manual_mode || false;
+      // Sync local state (handles concurrent overrides or manual refreshes)
+      _isManual = d.manual_mode || false;
       _lockState = d.manual_lock_state || 'CLOSED';
       renderControl();
 
-      // Telemetry panel
+      // Telemetry
       const tlLock = document.getElementById('tl-lock');
       if (tlLock) {
         tlLock.textContent = d.lock_status || '—';
-        tlLock.className   = 'telem-val ' + (d.lock_status === 'OPEN' ? 'green' : 'red');
+        tlLock.className = 'telem-block-val ' + (d.lock_status === 'OPEN' ? 'green-text' : 'red-text');
       }
 
       const tlState = document.getElementById('tl-state');
       if (tlState) {
         tlState.textContent = d.system_state || '—';
-        const stColour = { LOCKED:'red', CONFIRMING:'yellow', UNLOCKED:'green',
-                           WAITING_EXIT:'blue', MANUAL_OPEN:'green', MANUAL_LOCKED:'red' };
-        tlState.className = 'telem-val ' + (stColour[d.system_state] || 'red');
+        const stColors = {
+          LOCKED: 'red-text', CONFIRMING: 'yellow-text', UNLOCKED: 'green-text',
+          WAITING_EXIT: 'blue-text', MANUAL_OPEN: 'green-text', MANUAL_LOCKED: 'red-text'
+        };
+        tlState.className = 'telem-block-val ' + (stColors[d.system_state] || 'red-text');
       }
 
       const tlOp = document.getElementById('tl-operator');
       if (tlOp) {
-        tlOp.textContent  = d.manual_mode ? 'Manual Override' : (d.confirmed_person || 'None');
-        tlOp.style.color  = d.manual_mode ? 'var(--yellow)' : (d.confirmed_person ? 'var(--text)' : 'var(--muted)');
+        tlOp.textContent = d.manual_mode ? 'Manual override (Admin)' : (d.confirmed_person || 'None');
+        tlOp.style.color = d.manual_mode ? 'var(--yellow)' : (d.confirmed_person ? 'var(--text)' : 'var(--muted)');
+      }
+
+      const tlMode = document.getElementById('tl-mode-display');
+      if (tlMode) {
+        tlMode.textContent = d.manual_mode ? 'MANUAL OVERRIDE' : 'AUTOMATIC';
+        tlMode.style.color = d.manual_mode ? 'var(--yellow)' : 'var(--blue)';
       }
 
       const tlNote = document.getElementById('tl-note');
       if (tlNote) {
         tlNote.textContent = d.manual_mode
-          ? 'Manual override active. Face recognition state machine is bypassed.'
-          : 'Remote PWM Command Guard active. State transitions are monitored in log entries.';
-      }
-
-      const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      setText('tl-fps',     d.fps != null ? d.fps.toFixed(1) : '—');
-      setText('tl-users',   d.authorized_users ?? '—');
-      setText('tl-unlocks', d.unlock_count ?? '—');
-
-      const tlMode = document.getElementById('tl-mode');
-      if (tlMode) {
-        tlMode.textContent  = d.manual_mode ? 'MANUAL' : 'AUTO';
-        tlMode.style.color  = d.manual_mode ? 'var(--yellow)' : 'var(--muted)';
+          ? 'Manual override active. Autonomous face recognition trigger is bypassed. Security team is responsible for lock state.'
+          : 'System active. Door lock controlled by FaceNet face embedding match verification.';
       }
     }).catch(() => {});
   }
 
-  // Init
+  // Initial setup and trigger polling
   renderControl();
   pollControl();
   setInterval(pollControl, 2000);
