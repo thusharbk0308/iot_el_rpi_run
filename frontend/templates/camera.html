@@ -1,78 +1,88 @@
 {% extends "base.html" %}
-{% block title %}Live Camera{% endblock %}
-{% block page_title %}<i class="fas fa-camera me-2 text-primary"></i>Live Camera{% endblock %}
+{% block title %}Live Camera — Face Value{% endblock %}
 
 {% block content %}
-<div class="row g-3">
+<div class="camera-layout">
 
-  <!-- Stream -->
-  <div class="col-lg-8">
-    <div class="chart-card p-0 overflow-hidden">
-      <div class="stream-header">
-        <span class="stream-dot"></span>
-        <span>LIVE</span>
-        <span id="stream-fps" class="ms-auto text-muted small"></span>
-      </div>
-      <img id="stream" src="/video_feed" alt="Live Camera Feed"
-           onerror="this.src='/static/images/no_signal.png'"
-           style="width:100%;display:block;background:#000;">
+  <!-- Left: Webcam feed -->
+  <div class="webcam-card">
+    <div class="webcam-header">
+      <div class="webcam-title"><i class="fas fa-camera" style="margin-right:8px;color:var(--muted);"></i>Webcam Feed</div>
+      <div class="webcam-sub">Active face embedding registration monitor</div>
     </div>
-    <!-- Action buttons -->
-    <div class="d-flex gap-2 mt-3 flex-wrap">
-      <button class="btn btn-outline-primary" onclick="refreshStream()">
-        <i class="fas fa-rotate-right me-1"></i> Refresh Stream
+    <div class="webcam-frame">
+      <img id="stream" src="/video_feed" alt="Live Camera Feed"
+           onerror="this.style.height='280px';this.style.background='#050505';">
+      <div class="live-badge"><span class="live-dot"></span>LIVE VIDEO</div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+    </div>
+    <div style="display:flex;gap:8px;padding:0 16px 16px;">
+      <button class="btn btn-outline btn-sm" onclick="refreshStream()">
+        <i class="fas fa-rotate-right"></i> Refresh
       </button>
-      <button class="btn btn-outline-warning" id="btn-retrain" onclick="triggerRetrain()">
-        <i class="fas fa-database me-1"></i> Reload Database
+      <button class="btn btn-outline btn-sm" id="btn-retrain" onclick="triggerRetrain()">
+        <i class="fas fa-database"></i> Reload DB
       </button>
+      <span id="retrain-msg" style="font-size:.72rem;color:var(--muted);align-self:center;display:none;"></span>
     </div>
   </div>
 
-  <!-- Live info panel -->
-  <div class="col-lg-4">
-    <div class="chart-card h-100">
-      <div class="chart-title"><i class="fas fa-circle-info me-2"></i>Recognition Info</div>
+  <!-- Right: Stream status -->
+  <div class="stream-status-card">
+    <div class="stream-status-title">Stream Status</div>
+    <div class="stream-status-sub">Camera system health metrics</div>
 
-      <div class="mt-3">
-        <div class="cam-info-row">
-          <span class="cam-info-label">Person</span>
-          <span class="cam-info-value" id="cam-person">—</span>
-        </div>
-        <div class="cam-info-row">
-          <span class="cam-info-label">Confidence</span>
-          <span class="cam-info-value" id="cam-conf">—</span>
-        </div>
-        <div class="cam-info-row">
-          <span class="cam-info-label">State</span>
-          <span class="cam-info-value" id="cam-state">—</span>
-        </div>
-        <div class="cam-info-row">
-          <span class="cam-info-label">Lock</span>
-          <span class="cam-info-value" id="cam-lock">—</span>
-        </div>
-        <div class="cam-info-row">
-          <span class="cam-info-label">FPS</span>
-          <span class="cam-info-value" id="cam-fps">—</span>
-        </div>
+    <div class="metric-row">
+      <div class="metric-info">
+        <div class="metric-key">Active State</div>
+        <div class="metric-val blue" id="cam-state">LOCKED</div>
       </div>
+      <div class="metric-icon"><i class="fas fa-clock"></i></div>
+    </div>
 
-      <!-- Confirm timer -->
-      <div id="cam-timer-wrap" style="display:none;" class="mt-4">
-        <div class="cam-info-label mb-1">Confirming…</div>
-        <div class="progress" style="height:10px;">
-          <div id="cam-timer-bar" class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
-               style="width:0%;transition:width .5s;"></div>
-        </div>
-        <div class="text-muted small mt-1" id="cam-timer-text"></div>
+    <div class="metric-row">
+      <div class="metric-info">
+        <div class="metric-key">Recognition FPS</div>
+        <div class="metric-val" id="cam-fps" style="color:var(--text);">—</div>
       </div>
+      <div class="metric-icon"><i class="fas fa-bolt"></i></div>
+    </div>
 
-      <!-- Retrain status -->
-      <div id="retrain-status" class="mt-4" style="display:none;">
-        <div class="alert alert-info py-2 mb-0 small">
-          <i class="fas fa-spinner fa-spin me-1"></i>
-          <span id="retrain-msg">Retraining…</span>
-        </div>
+    <div class="metric-row">
+      <div class="metric-info">
+        <div class="metric-key">Authorized Users</div>
+        <div class="metric-val" id="cam-users" style="color:var(--text);">—</div>
       </div>
+      <div class="metric-icon"><i class="fas fa-users"></i></div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-info">
+        <div class="metric-key">Detected Person</div>
+        <div class="metric-val" id="cam-person" style="color:var(--muted);font-size:.85rem;">—</div>
+      </div>
+      <div class="metric-icon"><i class="fas fa-user"></i></div>
+    </div>
+
+    <div class="metric-row" id="cam-timer-row" style="display:none;">
+      <div style="width:100%;">
+        <div class="metric-key" style="margin-bottom:8px;">Confirming…</div>
+        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+          <div id="cam-timer-bar" style="height:100%;background:var(--yellow);border-radius:2px;transition:width .4s;width:0%;"></div>
+        </div>
+        <div id="cam-timer-text" style="font-size:.68rem;color:var(--muted);margin-top:4px;"></div>
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-info">
+        <div class="metric-key">Mode</div>
+        <div class="metric-val" id="cam-mode" style="color:var(--muted);font-size:.85rem;">AUTO</div>
+      </div>
+      <div class="metric-icon"><i class="fas fa-microchip"></i></div>
     </div>
   </div>
 
@@ -81,6 +91,80 @@
 
 {% block scripts %}
 <script>
-  initCamera();
+  function pollCameraStats() {
+    fetch('/api/stats').then(r => r.json()).then(d => {
+      const stateEl = document.getElementById('cam-state');
+      if (stateEl) {
+        stateEl.textContent = d.system_state || '—';
+        stateEl.className   = 'metric-val ' +
+          (d.lock_status === 'OPEN' ? 'green' : (d.system_state === 'CONFIRMING' ? 'yellow' : 'blue'));
+      }
+      const fpsEl = document.getElementById('cam-fps');
+      if (fpsEl) fpsEl.textContent = d.fps != null ? d.fps.toFixed(1) : '—';
+
+      const usersEl = document.getElementById('cam-users');
+      if (usersEl) usersEl.textContent = d.authorized_users ?? '—';
+
+      const personEl = document.getElementById('cam-person');
+      if (personEl) {
+        personEl.textContent = d.confirmed_person || '—';
+        personEl.style.color = d.confirmed_person ? 'var(--text)' : 'var(--muted)';
+      }
+
+      const timerRow = document.getElementById('cam-timer-row');
+      const timerBar = document.getElementById('cam-timer-bar');
+      const timerTxt = document.getElementById('cam-timer-text');
+      if (timerRow) {
+        timerRow.style.display = d.system_state === 'CONFIRMING' ? 'flex' : 'none';
+        if (timerBar) timerBar.style.width = ((d.confirm_progress||0)*100).toFixed(1)+'%';
+        if (timerTxt) timerTxt.textContent  = d.confirmed_person ? `Verifying ${d.confirmed_person}…` : '';
+      }
+
+      const modeEl = document.getElementById('cam-mode');
+      if (modeEl) {
+        modeEl.textContent  = d.manual_mode ? 'MANUAL OVERRIDE' : 'AUTO';
+        modeEl.style.color  = d.manual_mode ? 'var(--yellow)' : 'var(--muted)';
+      }
+    }).catch(() => {});
+  }
+
+  function refreshStream() {
+    const img = document.getElementById('stream');
+    if (img) { img.src = '/video_feed?' + Date.now(); showToast('Stream refreshed.', 'info'); }
+  }
+
+  function triggerRetrain() {
+    const btn = document.getElementById('btn-retrain');
+    const msg = document.getElementById('retrain-msg');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retraining…'; }
+    if (msg) { msg.textContent = 'Retraining…'; msg.style.display = 'inline'; }
+
+    fetch('/api/retrain', { method: 'POST' }).then(r => r.json()).then(d => {
+      if (!d.ok) {
+        showToast(d.message || 'Already running.', 'warning');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-database"></i> Reload DB'; }
+        if (msg) msg.style.display = 'none';
+        return;
+      }
+      showToast('Retraining started…', 'info');
+      const poll = setInterval(() => {
+        fetch('/api/retrain_status').then(r => r.json()).then(s => {
+          if (!s.running) {
+            clearInterval(poll);
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-database"></i> Reload DB'; }
+            if (msg) msg.style.display = 'none';
+            showToast(s.success ? 'Database retrained!' : 'Retrain failed: ' + s.message, s.success ? 'success' : 'danger');
+          }
+        });
+      }, 2000);
+    }).catch(() => {
+      showToast('Failed to start retrain.', 'danger');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-database"></i> Reload DB'; }
+      if (msg) msg.style.display = 'none';
+    });
+  }
+
+  pollCameraStats();
+  setInterval(pollCameraStats, 2000);
 </script>
 {% endblock %}

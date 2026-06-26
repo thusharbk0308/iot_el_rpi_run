@@ -1,133 +1,122 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
-{% block page_title %}<i class="fas fa-gauge-high me-2 text-primary"></i>Dashboard{% endblock %}
+{% block title %}Home — Face Value{% endblock %}
 
 {% block content %}
 
-<!-- ── Stat Cards ───────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-  <div class="col-xl-2 col-md-4 col-6">
-    <div class="stat-card">
-      <div class="stat-icon" style="color:#3B82F6;"><i class="fas fa-users"></i></div>
-      <div class="stat-value" id="s-users">{{ num_users }}</div>
-      <div class="stat-label">Authorized Users</div>
-    </div>
-  </div>
-
-  <div class="col-xl-2 col-md-4 col-6">
-    <div class="stat-card">
-      <div class="stat-icon" style="color:#22C55E;"><i class="fas fa-door-open"></i></div>
-      <div class="stat-value" id="s-unlocks">{{ stats_today.unlock_count }}</div>
-      <div class="stat-label">Unlocks Today</div>
-    </div>
-  </div>
-
-  <div class="col-xl-2 col-md-4 col-6">
-    <div class="stat-card">
-      <div class="stat-icon" style="color:#EF4444;"><i class="fas fa-user-secret"></i></div>
-      <div class="stat-value" id="s-unknown">{{ stats_today.unknown_count }}</div>
-      <div class="stat-label">Unknown Today</div>
-    </div>
-  </div>
-
-  <div class="col-xl-2 col-md-4 col-6">
-    <div class="stat-card">
-      <div class="stat-icon" style="color:#F59E0B;"><i class="fas fa-door-open"></i></div>
-      <div class="stat-value" id="s-w-unlocks">{{ stats_weekly.unlock_count }}</div>
-      <div class="stat-label">Unlocks (7 days)</div>
-    </div>
-  </div>
-
-  <div class="col-xl-2 col-md-4 col-6">
-    <div class="stat-card">
-      <div class="stat-icon" style="color:#8B5CF6;"><i class="fas fa-calendar"></i></div>
-      <div class="stat-value" id="s-m-unlocks">{{ stats_monthly.unlock_count }}</div>
-      <div class="stat-label">Unlocks (30 days)</div>
-    </div>
-  </div>
-
-  <div class="col-xl-2 col-md-4 col-6">
-    <div class="stat-card">
-      <div class="stat-icon" style="color:#06B6D4;"><i class="fas fa-microchip"></i></div>
-      <div class="stat-value" id="s-fps">—</div>
-      <div class="stat-label">Camera FPS</div>
-    </div>
-  </div>
-
+<!-- Hero -->
+<div class="hero">
+  <h1 class="hero-title">FACE <span>VALUE</span></h1>
+  <p class="hero-sub">
+    An intelligent, hardware-integrated edge security application using FaceNet
+    face embeddings, MTCNN facial detection, and high-precision physical access controls.
+  </p>
 </div>
 
-<!-- ── Live Info Row ────────────────────────────── -->
-<div class="row g-3 mb-4">
-
-  <div class="col-md-4">
-    <div class="info-card">
-      <div class="info-label"><i class="fas fa-person me-1"></i> Current Person</div>
-      <div class="info-value" id="live-person">No Face Detected</div>
-      <div class="info-sub" id="live-conf"></div>
-    </div>
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-key">System State</div>
+    <div class="stat-val red" id="h-state">LOCKED</div>
   </div>
-
-  <div class="col-md-4">
-    <div class="info-card">
-      <div class="info-label"><i class="fas fa-lock me-1"></i> Lock State</div>
-      <div class="info-value" id="live-lock">CLOSED</div>
-      <div class="info-sub" id="live-state">LOCKED</div>
-    </div>
+  <div class="stat-item">
+    <div class="stat-key">Lock Status</div>
+    <div class="stat-val red" id="h-lock">CLOSED</div>
   </div>
-
-  <div class="col-md-4">
-    <div class="info-card">
-      <div class="info-label"><i class="fas fa-clock me-1"></i> Recognition Timer</div>
-      <div id="timer-wrap" style="display:none;">
-        <div class="progress mt-2" style="height:8px;">
-          <div id="timer-bar" class="progress-bar bg-warning" style="width:0%;transition:width .5s;"></div>
-        </div>
-        <div class="info-sub mt-1" id="timer-text">0.0 / 2.0 s</div>
-      </div>
-      <div class="info-value" id="timer-idle" style="color:var(--color-muted);font-size:1rem;">—</div>
-    </div>
+  <div class="stat-item">
+    <div class="stat-key">Active Users</div>
+    <div class="stat-val" id="h-users">{{ num_users }}</div>
   </div>
-
+  <div class="stat-item">
+    <div class="stat-key">Engine FPS</div>
+    <div class="stat-val blue" id="h-fps">—</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-key">Mode</div>
+    <div class="stat-val" id="h-mode" style="color:var(--muted);">AUTO</div>
+  </div>
+  <div class="stat-clock" id="h-clock"></div>
 </div>
 
-<!-- ── Charts ───────────────────────────────────── -->
-<div class="row g-3 mb-4">
-  <div class="col-lg-8">
-    <div class="chart-card">
-      <div class="chart-title"><i class="fas fa-chart-bar me-2"></i>Today's Hourly Activity</div>
-      <canvas id="hourly-chart" height="120"></canvas>
-    </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="chart-card">
-      <div class="chart-title"><i class="fas fa-chart-line me-2"></i>Weekly Summary</div>
-      <canvas id="weekly-chart" height="120"></canvas>
-    </div>
-  </div>
-</div>
+<!-- Feature cards -->
+<div class="feature-grid">
 
-<!-- ── Recent Timeline ──────────────────────────── -->
-<div class="row g-3">
-  <div class="col-12">
-    <div class="chart-card">
-      <div class="chart-title d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-timeline me-2"></i>Recent Activity</span>
-        <a href="/logs" class="btn btn-sm btn-outline-secondary">View All Logs</a>
-      </div>
-      <div id="timeline-list" class="timeline mt-3">
-        <div class="text-center text-muted py-4">
-          <i class="fas fa-spinner fa-spin me-2"></i>Loading…
-        </div>
-      </div>
+  <a href="/camera" class="feature-card" style="text-decoration:none;color:inherit;">
+    <div class="feature-icon"><i class="fas fa-camera"></i></div>
+    <div class="feature-title">Live Camera Feed</div>
+    <div class="feature-desc">
+      View the live, annotated feed with real-time target bounding boxes, landmark tracking,
+      and active confirmation timers.
     </div>
-  </div>
+    <div class="feature-link">Open Feed <i class="fas fa-arrow-right"></i></div>
+  </a>
+
+  <a href="/control" class="feature-card" style="text-decoration:none;color:inherit;">
+    <div class="feature-icon"><i class="fas fa-lock"></i></div>
+    <div class="feature-title">Control Panel</div>
+    <div class="feature-desc">
+      Manually command the servo motor to unlock or lock the door, monitor live physical state
+      transitions, and view controller status dials.
+    </div>
+    <div class="feature-link">Open Console <i class="fas fa-arrow-right"></i></div>
+  </a>
+
+  <a href="/logs" class="feature-card" style="text-decoration:none;color:inherit;">
+    <div class="feature-icon"><i class="fas fa-list"></i></div>
+    <div class="feature-title">Access Logs</div>
+    <div class="feature-desc">
+      Inspect transaction logs, view authentication results, verify confidence scores,
+      and analyze access historical records.
+    </div>
+    <div class="feature-link">Open Logs <i class="fas fa-arrow-right"></i></div>
+  </a>
+
 </div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-  initDashboard();
+  // Home page stat polling
+  function pollHome() {
+    fetch('/api/stats').then(r => r.json()).then(d => {
+      const stateEl = document.getElementById('h-state');
+      const lockEl  = document.getElementById('h-lock');
+      const modeEl  = document.getElementById('h-mode');
+
+      if (stateEl) {
+        stateEl.textContent = d.system_state || '—';
+        stateEl.style.color = d.lock_status === 'OPEN' ? 'var(--green)' : 'var(--red)';
+      }
+      if (lockEl) {
+        lockEl.textContent  = d.lock_status || '—';
+        lockEl.style.color  = d.lock_status === 'OPEN' ? 'var(--green)' : 'var(--red)';
+      }
+      const fps = document.getElementById('h-fps');
+      if (fps) fps.textContent = d.fps != null ? d.fps.toFixed(1) : '—';
+
+      const users = document.getElementById('h-users');
+      if (users) users.textContent = d.authorized_users ?? '—';
+
+      if (modeEl) {
+        modeEl.textContent  = d.manual_mode ? 'MANUAL' : 'AUTO';
+        modeEl.style.color  = d.manual_mode ? 'var(--yellow)' : 'var(--muted)';
+      }
+    }).catch(() => {});
+  }
+
+  function startHomeClock() {
+    const el = document.getElementById('h-clock');
+    if (!el) return;
+    function tick() {
+      const now = new Date();
+      el.textContent = now.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  startHomeClock();
+  pollHome();
+  setInterval(pollHome, 2000);
 </script>
 {% endblock %}

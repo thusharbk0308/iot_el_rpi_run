@@ -1,63 +1,62 @@
 {% extends "base.html" %}
-{% block title %}Unknown Visitors{% endblock %}
-{% block page_title %}<i class="fas fa-user-secret me-2 text-danger"></i>Unknown Visitors{% endblock %}
+{% block title %}Unknown Visitors — Face Value{% endblock %}
 
 {% block content %}
 
-<!-- Filter bar -->
-<div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-  <form method="GET" action="/unknown" class="d-flex gap-2">
-    <select name="date" class="form-select form-select-sm bg-dark text-light border-secondary"
-            onchange="this.form.submit()" style="width:auto;">
-      <option value="">All Dates</option>
-      {% for d in dates %}
-      <option value="{{ d }}" {% if d == selected_date %}selected{% endif %}>{{ d }}</option>
-      {% endfor %}
-    </select>
-    {% if selected_date %}
-    <a href="/unknown" class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-xmark"></i> Clear
-    </a>
-    {% endif %}
-  </form>
-  <span class="text-muted small ms-auto">{{ faces|length }} snapshot{{ 's' if faces|length != 1 }}</span>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:4px;">
+      <i class="fas fa-user-secret" style="margin-right:8px;color:var(--muted);"></i>Unknown Visitors
+    </h2>
+    <p style="font-size:.73rem;color:var(--muted);">Snapshots of unauthorized access attempts</p>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <form method="GET" action="/unknown" style="display:flex;gap:8px;align-items:center;">
+      <select name="date" class="settings-input" style="width:auto;padding:6px 10px;font-size:.78rem;"
+              onchange="this.form.submit()">
+        <option value="">All Dates</option>
+        {% for d in dates %}
+        <option value="{{ d }}" {% if d == selected_date %}selected{% endif %}>{{ d }}</option>
+        {% endfor %}
+      </select>
+      {% if selected_date %}
+      <a href="/unknown" class="btn btn-outline btn-sm">Clear</a>
+      {% endif %}
+    </form>
+    <span style="font-size:.72rem;color:var(--muted);">{{ faces|length }} snapshot{{ 's' if faces|length != 1 }}</span>
+  </div>
 </div>
 
 {% if faces %}
-<div class="row g-3">
+<div class="unknown-grid">
   {% for face in faces %}
-  <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6" id="face-card-{{ face.id }}">
-    <div class="unknown-card">
-      <div class="unknown-img-wrap">
-        <img src="/media/unknown/{{ face.image_path }}"
-             alt="Unknown visitor" class="unknown-img"
-             onerror="this.parentElement.innerHTML='<div class=\'no-img\'><i class=\'fas fa-image-slash\'></i></div>'">
-        <span class="conf-badge">{{ "%.1f"|format(face.confidence) }}%</span>
-      </div>
-      <div class="unknown-info">
-        <div class="unknown-date">{{ face.timestamp[:10] }}</div>
-        <div class="unknown-time"><i class="fas fa-clock me-1"></i>{{ face.timestamp[11:] }}</div>
-        <div class="unknown-actions mt-2">
-          <a href="/api/download_unknown/{{ face.id }}" class="btn btn-xs btn-outline-primary" title="Download">
-            <i class="fas fa-download"></i>
-          </a>
-          <button class="btn btn-xs btn-outline-danger" title="Delete"
-                  onclick="deleteUnknown({{ face.id }}, '{{ face.timestamp }}')">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
+  <div class="unk-card" id="face-card-{{ face.id }}">
+    <div class="unk-img-wrap">
+      <img src="/media/unknown/{{ face.image_path }}" alt="Unknown" class="unk-img"
+           onerror="this.parentElement.innerHTML='<div style=\'width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--muted2);background:#0a0a0a\'><i class=\'fas fa-image-slash\'></i></div>'">
+      <div class="unk-conf">{{ "%.1f"|format(face.confidence) }}%</div>
+    </div>
+    <div class="unk-info">
+      <div class="unk-date">{{ face.timestamp[:10] }}</div>
+      <div class="unk-time">{{ face.timestamp[11:] }}</div>
+      <div class="unk-actions">
+        <a href="/api/download_unknown/{{ face.id }}" class="btn btn-outline btn-xs">
+          <i class="fas fa-download"></i>
+        </a>
+        <button class="btn btn-danger btn-xs"
+                onclick="deleteUnknown({{ face.id }}, '{{ face.timestamp[:16] }}')">
+          <i class="fas fa-trash"></i>
+        </button>
       </div>
     </div>
   </div>
   {% endfor %}
 </div>
-
 {% else %}
 <div class="empty-state">
   <i class="fas fa-user-check"></i>
   <h4>No Unknown Visitors</h4>
-  <p>All clear — no unauthorized access attempts recorded
-    {% if selected_date %}on {{ selected_date }}{% endif %}.</p>
+  <p>No unauthorized access attempts recorded{% if selected_date %} on {{ selected_date }}{% endif %}.</p>
 </div>
 {% endif %}
 
@@ -68,14 +67,10 @@
 function deleteUnknown(id, label) {
   if (!confirm(`Delete snapshot from ${label}?`)) return;
   fetch('/api/delete_unknown', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
+    method: 'POST', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({id})
   }).then(r => r.json()).then(d => {
-    if (d.ok) {
-      document.getElementById('face-card-' + id)?.remove();
-      showToast('Snapshot deleted.', 'success');
-    }
+    if (d.ok) { document.getElementById('face-card-' + id)?.remove(); showToast('Snapshot deleted.', 'success'); }
   }).catch(() => showToast('Delete failed.', 'danger'));
 }
 </script>

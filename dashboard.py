@@ -179,6 +179,12 @@ def logout():
 # ──────────────────────────────────────────────────────────────
 # Page routes
 # ──────────────────────────────────────────────────────────────
+@app.route("/control")
+@login_required
+def control():
+    return render_template("control.html")
+
+
 @app.route("/")
 @login_required
 def dashboard():
@@ -340,6 +346,33 @@ def serve_unknown_image(filepath):
 # ──────────────────────────────────────────────────────────────
 # API routes
 # ──────────────────────────────────────────────────────────────
+# ──────────────────────────────────────────────────────────────
+# Manual mode API
+# ──────────────────────────────────────────────────────────────
+@app.route("/api/manual/unlock", methods=["POST"])
+@login_required
+def api_manual_unlock():
+    recognition_engine.set_manual_unlock()
+    db.log_access("Manual Override", 100.0, "GRANTED", "OPEN")
+    return jsonify({"ok": True, "mode": "manual", "state": "OPEN"})
+
+
+@app.route("/api/manual/lock", methods=["POST"])
+@login_required
+def api_manual_lock():
+    recognition_engine.set_manual_lock()
+    db.log_access("Manual Override", 100.0, "GRANTED", "CLOSED")
+    return jsonify({"ok": True, "mode": "manual", "state": "CLOSED"})
+
+
+@app.route("/api/manual/auto", methods=["POST"])
+@login_required
+def api_manual_auto():
+    recognition_engine.set_auto_mode()
+    db.log_access("System", 0.0, "AUTO", "CLOSED")
+    return jsonify({"ok": True, "mode": "auto"})
+
+
 @app.route("/api/stats")
 @login_required
 def api_stats():
@@ -360,6 +393,8 @@ def api_stats():
         "ram_percent":       psutil.virtual_memory().percent,
         "cpu_temp":          temp,
         "disk_percent":      psutil.disk_usage("/").percent,
+        "manual_mode":       recognition_engine.manual_mode,
+        "manual_lock_state": recognition_engine.manual_lock_state,
     })
 
 @app.route("/api/timeline")
@@ -452,7 +487,8 @@ def api_retrain_status():
 @app.route("/api/export_csv")
 @login_required
 def api_export_csv():
-    tmp = "/tmp/access_log_export.csv"
+    import tempfile
+    tmp = os.path.join(tempfile.gettempdir(), "access_log_export.csv")
     db.export_csv(tmp)
     return send_file(tmp, as_attachment=True,
                      download_name=f"access_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv")

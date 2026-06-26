@@ -1,101 +1,110 @@
 {% extends "base.html" %}
-{% block title %}System Status{% endblock %}
-{% block page_title %}<i class="fas fa-server me-2 text-primary"></i>System Status{% endblock %}
+{% block title %}System Status — Face Value{% endblock %}
 
 {% block content %}
 
-<div class="row g-3 mb-4">
+<div style="margin-bottom:24px;">
+  <h2 style="font-size:1rem;font-weight:700;margin-bottom:4px;">
+    <i class="fas fa-server" style="margin-right:8px;color:var(--muted);"></i>System Status
+  </h2>
+  <p style="font-size:.73rem;color:var(--muted);">Real-time hardware & software health metrics</p>
+</div>
+
+<div class="sys-grid" style="margin-bottom:20px;">
 
   <!-- CPU -->
-  <div class="col-md-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon text-warning"><i class="fas fa-microchip"></i></div>
-      <div class="stat-value" id="sys-cpu">—</div>
-      <div class="stat-label">CPU Usage</div>
-      <div class="progress mt-2" style="height:5px;">
-        <div id="bar-cpu" class="progress-bar bg-warning" style="width:0%;transition:width .6s;"></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;">CPU Usage</div>
+        <div style="font-size:1.8rem;font-weight:800;" id="sys-cpu">—</div>
       </div>
+      <i class="fas fa-microchip" style="color:var(--muted2);font-size:1.2rem;margin-top:4px;"></i>
     </div>
+    <div class="prog-bar"><div class="prog-fill prog-yellow" id="bar-cpu" style="width:0%;"></div></div>
   </div>
 
   <!-- RAM -->
-  <div class="col-md-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon text-primary"><i class="fas fa-memory"></i></div>
-      <div class="stat-value" id="sys-ram">—</div>
-      <div class="stat-label">RAM Usage</div>
-      <div class="progress mt-2" style="height:5px;">
-        <div id="bar-ram" class="progress-bar bg-primary" style="width:0%;transition:width .6s;"></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;">RAM Usage</div>
+        <div style="font-size:1.8rem;font-weight:800;" id="sys-ram">—</div>
       </div>
+      <i class="fas fa-memory" style="color:var(--muted2);font-size:1.2rem;margin-top:4px;"></i>
     </div>
+    <div class="prog-bar"><div class="prog-fill prog-blue" id="bar-ram" style="width:0%;"></div></div>
   </div>
 
   <!-- Disk -->
-  <div class="col-md-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon text-info"><i class="fas fa-hard-drive"></i></div>
-      <div class="stat-value" id="sys-disk">—</div>
-      <div class="stat-label">Disk Usage</div>
-      <div class="progress mt-2" style="height:5px;">
-        <div id="bar-disk" class="progress-bar bg-info" style="width:0%;transition:width .6s;"></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;">Disk Usage</div>
+        <div style="font-size:1.8rem;font-weight:800;" id="sys-disk">—</div>
       </div>
+      <i class="fas fa-hard-drive" style="color:var(--muted2);font-size:1.2rem;margin-top:4px;"></i>
     </div>
+    <div class="prog-bar"><div class="prog-fill prog-green" id="bar-disk" style="width:0%;"></div></div>
   </div>
 
   <!-- Temperature -->
-  <div class="col-md-6 col-xl-3">
-    <div class="stat-card">
-      <div class="stat-icon" id="temp-icon" style="color:#22C55E;"><i class="fas fa-thermometer-half"></i></div>
-      <div class="stat-value" id="sys-temp">—</div>
-      <div class="stat-label">CPU Temperature</div>
-      <div class="text-muted small mt-1" id="temp-label"></div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <div style="font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;">CPU Temperature</div>
+        <div style="font-size:1.8rem;font-weight:800;" id="sys-temp">—</div>
+      </div>
+      <i class="fas fa-thermometer-half" id="temp-icon" style="color:var(--green);font-size:1.2rem;margin-top:4px;"></i>
     </div>
+    <div style="font-size:.7rem;color:var(--muted);" id="temp-label">—</div>
   </div>
 
 </div>
 
-<!-- Status indicators + Info -->
-<div class="row g-3">
+<div class="sys-grid">
 
-  <div class="col-lg-6">
-    <div class="chart-card">
-      <div class="chart-title"><i class="fas fa-circle-check me-2"></i>Component Status</div>
-      <div class="status-list mt-3">
-        <div class="status-row">
-          <span class="status-label"><i class="fas fa-camera me-2"></i>Camera</span>
-          <span class="status-dot online" id="st-camera">ONLINE</span>
-        </div>
-        <div class="status-row">
-          <span class="status-label"><i class="fas fa-server me-2"></i>Flask Server</span>
-          <span class="status-dot online">RUNNING</span>
-        </div>
-        <div class="status-row">
-          <span class="status-label"><i class="fas fa-brain me-2"></i>Recognition Engine</span>
-          <span class="status-dot" id="st-engine">—</span>
-        </div>
-        <div class="status-row">
-          <span class="status-label"><i class="fas fa-rotate me-2"></i>Servo (GPIO)</span>
-          <span class="status-dot" id="st-servo">—</span>
-        </div>
-        <div class="status-row">
-          <span class="status-label"><i class="fas fa-gauge me-2"></i>Live FPS</span>
-          <span class="status-dot online" id="st-fps">—</span>
-        </div>
+  <!-- Component status -->
+  <div class="card">
+    <div style="font-size:.88rem;font-weight:700;margin-bottom:16px;">Component Status</div>
+    <div class="status-list">
+      <div class="status-row">
+        <span class="status-label"><i class="fas fa-camera me-2"></i>Camera</span>
+        <span class="status-dot dot-online" id="st-camera">ONLINE</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label"><i class="fas fa-server me-2"></i>Flask Server</span>
+        <span class="status-dot dot-online">RUNNING</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label"><i class="fas fa-brain me-2"></i>Recognition Engine</span>
+        <span class="status-dot" id="st-engine">—</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label"><i class="fas fa-rotate me-2"></i>Servo (GPIO)</span>
+        <span class="status-dot" id="st-servo">—</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label"><i class="fas fa-microchip me-2"></i>Control Mode</span>
+        <span class="status-dot" id="st-mode">AUTO</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label"><i class="fas fa-gauge me-2"></i>Live FPS</span>
+        <span class="status-dot dot-online" id="st-fps">—</span>
       </div>
     </div>
   </div>
 
-  <div class="col-lg-6">
-    <div class="chart-card">
-      <div class="chart-title"><i class="fas fa-circle-info me-2"></i>System Info</div>
-      <div class="info-table mt-3">
-        <div class="info-row"><span>IP Address</span><span id="inf-ip">—</span></div>
-        <div class="info-row"><span>Uptime</span><span id="inf-uptime">—</span></div>
-        <div class="info-row"><span>Python Version</span><span id="inf-python">—</span></div>
-        <div class="info-row"><span>Database Size</span><span id="inf-db">—</span></div>
-        <div class="info-row"><span>RAM (Used / Total)</span><span id="inf-ram">—</span></div>
-        <div class="info-row"><span>Disk (Used / Total)</span><span id="inf-disk">—</span></div>
-      </div>
+  <!-- System info -->
+  <div class="card">
+    <div style="font-size:.88rem;font-weight:700;margin-bottom:16px;">System Info</div>
+    <div class="info-table">
+      <div class="info-row"><span>IP Address</span><span id="inf-ip">—</span></div>
+      <div class="info-row"><span>Uptime</span><span id="inf-uptime">—</span></div>
+      <div class="info-row"><span>Python Version</span><span id="inf-python">—</span></div>
+      <div class="info-row"><span>Database Size</span><span id="inf-db">—</span></div>
+      <div class="info-row"><span>RAM (Used / Total)</span><span id="inf-ram">—</span></div>
+      <div class="info-row"><span>Disk (Used / Total)</span><span id="inf-disk">—</span></div>
     </div>
   </div>
 
@@ -105,6 +114,59 @@
 
 {% block scripts %}
 <script>
-  initSystem();
+function pollSystem() {
+  fetch('/api/system').then(r => r.json()).then(d => {
+    const setText = (id, v) => { const e = document.getElementById(id); if (e && v != null) e.textContent = v; };
+    const setBar  = (id, p) => { const e = document.getElementById(id); if (e && p != null) e.style.width = Math.min(p, 100).toFixed(1) + '%'; };
+
+    setText('sys-cpu',  d.cpu_percent  != null ? d.cpu_percent.toFixed(1)  + '%' : '—');
+    setText('sys-ram',  d.ram_percent  != null ? d.ram_percent.toFixed(1)  + '%' : '—');
+    setText('sys-disk', d.disk_percent != null ? d.disk_percent.toFixed(1) + '%' : '—');
+    setBar('bar-cpu',  d.cpu_percent);
+    setBar('bar-ram',  d.ram_percent);
+    setBar('bar-disk', d.disk_percent);
+
+    if (d.cpu_temp != null) {
+      setText('sys-temp', d.cpu_temp + '°C');
+      const icon = document.getElementById('temp-icon');
+      const lbl  = document.getElementById('temp-label');
+      let col = 'var(--green)', txt = 'Normal';
+      if (d.cpu_temp >= 75)      { col = 'var(--red)';    txt = 'Critical — check cooling!'; }
+      else if (d.cpu_temp >= 60) { col = 'var(--yellow)'; txt = 'Warm'; }
+      if (icon) icon.style.color = col;
+      if (lbl)  lbl.textContent  = txt;
+    }
+
+    const setDot = (id, text, cls) => {
+      const e = document.getElementById(id);
+      if (!e) return;
+      e.textContent = text;
+      e.className   = 'status-dot ' + cls;
+    };
+    setDot('st-engine', d.engine_running ? 'RUNNING' : 'STOPPED', d.engine_running ? 'dot-online' : 'dot-offline');
+    setDot('st-servo',  d.servo_state || '—',
+           d.servo_state === 'OPEN' ? 'dot-online' : (d.servo_state === 'CLOSED' ? 'dot-warning' : 'dot-offline'));
+    setText('st-fps', d.fps != null ? d.fps + ' FPS' : '—');
+
+    const modeEl = document.getElementById('st-mode');
+    if (modeEl) {
+      // Fetch stats for manual_mode
+      fetch('/api/stats').then(r => r.json()).then(s => {
+        modeEl.textContent = s.manual_mode ? 'MANUAL' : 'AUTO';
+        modeEl.className   = 'status-dot ' + (s.manual_mode ? 'dot-warning' : 'dot-online');
+      });
+    }
+
+    setText('inf-ip',     d.ip || '—');
+    setText('inf-uptime', d.uptime || '—');
+    setText('inf-python', d.python || '—');
+    setText('inf-db',     d.db_size_kb != null ? d.db_size_kb + ' KB' : '—');
+    setText('inf-ram',    (d.ram_used_mb && d.ram_total_mb) ? `${d.ram_used_mb} / ${d.ram_total_mb} MB` : '—');
+    setText('inf-disk',   (d.disk_used_gb && d.disk_total_gb) ? `${d.disk_used_gb} / ${d.disk_total_gb} GB` : '—');
+  }).catch(() => {});
+}
+
+pollSystem();
+setInterval(pollSystem, 3000);
 </script>
 {% endblock %}

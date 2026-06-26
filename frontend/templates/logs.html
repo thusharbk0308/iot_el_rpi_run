@@ -1,109 +1,99 @@
 {% extends "base.html" %}
-{% block title %}Access Logs{% endblock %}
-{% block page_title %}<i class="fas fa-list-check me-2 text-primary"></i>Access Logs{% endblock %}
+{% block title %}Access Logs — Face Value{% endblock %}
 
 {% block content %}
 
-<!-- Toolbar -->
-<div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
-  <form method="GET" action="/logs" class="d-flex gap-2 flex-grow-1">
-    <div class="input-group input-group-sm" style="max-width:300px;">
-      <span class="input-group-text bg-dark border-secondary text-muted">
-        <i class="fas fa-search"></i>
-      </span>
-      <input type="text" name="search" value="{{ search }}" class="form-control bg-dark text-light border-secondary"
-             placeholder="Search name or result…">
+<div class="logs-card">
+  <div class="logs-header">
+    <div>
+      <div class="logs-title">
+        <i class="fas fa-file-lines" style="margin-right:8px;color:var(--muted);font-size:.9rem;"></i>
+        Access Transaction Logs
+      </div>
+      <div class="logs-sub">Real-time log transactions recorded by the recognition framework</div>
     </div>
-    <input type="date" name="date" value="{{ date_filter }}"
-           class="form-control form-control-sm bg-dark text-light border-secondary" style="width:auto;">
-    <button class="btn btn-sm btn-primary">Filter</button>
-    {% if search or date_filter %}
-    <a href="/logs" class="btn btn-sm btn-outline-secondary">Clear</a>
-    {% endif %}
-  </form>
-  <a href="/api/export_csv" class="btn btn-sm btn-outline-success ms-auto">
-    <i class="fas fa-file-csv me-1"></i> Export CSV
-  </a>
-</div>
 
-<!-- Table -->
-<div class="chart-card p-0">
-  <div class="table-responsive">
-    <table class="table table-dark table-hover mb-0 log-table">
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Person</th>
-          <th>Confidence</th>
-          <th>Result</th>
-          <th>Lock</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if rows %}
-        {% for r in rows %}
-        <tr>
-          <td class="text-muted small">{{ r.timestamp }}</td>
-          <td class="fw-500">{{ r.person_name }}</td>
-          <td>{{ "%.1f"|format(r.confidence) }}%</td>
-          <td>
-            {% if r.result == 'GRANTED' %}
-            <span class="badge bg-success"><i class="fas fa-check me-1"></i>GRANTED</span>
-            {% else %}
-            <span class="badge bg-danger"><i class="fas fa-xmark me-1"></i>DENIED</span>
-            {% endif %}
-          </td>
-          <td>
-            {% if r.lock_status == 'OPEN' %}
-            <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">OPEN</span>
-            {% else %}
-            <span class="badge bg-secondary bg-opacity-25 text-secondary border border-secondary border-opacity-25">CLOSED</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-        {% else %}
-        <tr>
-          <td colspan="5" class="text-center text-muted py-5">
-            <i class="fas fa-inbox me-2"></i>No records found
-          </td>
-        </tr>
+    <div class="logs-filter">
+      <form method="GET" action="/logs" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input type="text" name="search" value="{{ search }}"
+               class="settings-input" style="width:200px;padding:6px 10px;font-size:.78rem;"
+               placeholder="Search name or result…">
+        <input type="date" name="date" value="{{ date_filter }}"
+               class="settings-input" style="width:auto;padding:6px 10px;font-size:.78rem;">
+        <button type="submit" class="btn btn-outline btn-sm">Filter</button>
+        {% if search or date_filter %}
+        <a href="/logs" class="btn btn-outline btn-sm">Clear</a>
         {% endif %}
-      </tbody>
-    </table>
+      </form>
+      <a href="/api/export_csv" class="btn btn-outline btn-sm">
+        <i class="fas fa-download"></i> CSV
+      </a>
+    </div>
   </div>
+
+  <table class="log-table">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Identity / Operator</th>
+        <th>Similarity Confidence</th>
+        <th>Access Outcome</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if rows %}
+      {% for r in rows %}
+      <tr>
+        <td class="td-ts">{{ r.timestamp }}</td>
+        <td class="td-name">{{ r.person_name }}</td>
+        <td class="td-conf">
+          {% if r.result == 'AUTO' %}
+            —
+          {% else %}
+            {{ "%.2f"|format(r.confidence) }}%
+          {% endif %}
+        </td>
+        <td>
+          {% if r.result == 'GRANTED' %}
+          <span class="badge-granted">GRANTED</span>
+          {% elif r.result == 'AUTO' %}
+          <span class="badge-auto">AUTO</span>
+          {% else %}
+          <span class="badge-denied">DENIED</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="4" style="text-align:center;padding:60px;color:var(--muted);font-size:.82rem;">
+          No records found
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
 </div>
 
 <!-- Pagination -->
 {% if total_pages > 1 %}
-<nav class="mt-3">
-  <ul class="pagination pagination-sm justify-content-center">
-    {% if page > 1 %}
-    <li class="page-item">
-      <a class="page-link" href="?page={{ page-1 }}&search={{ search }}&date={{ date_filter }}">
-        <i class="fas fa-chevron-left"></i>
-      </a>
-    </li>
-    {% endif %}
-    {% for p in range(1, total_pages+1) %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a class="pg-link" href="?page={{ page-1 }}&search={{ search }}&date={{ date_filter }}">&#8249;</a>
+  {% endif %}
+  {% for p in range(1, total_pages+1) %}
     {% if p == page or p == 1 or p == total_pages or (p >= page-2 and p <= page+2) %}
-    <li class="page-item {% if p == page %}active{% endif %}">
-      <a class="page-link" href="?page={{ p }}&search={{ search }}&date={{ date_filter }}">{{ p }}</a>
-    </li>
+    <a class="pg-link {% if p == page %}active{% endif %}"
+       href="?page={{ p }}&search={{ search }}&date={{ date_filter }}">{{ p }}</a>
     {% elif p == page-3 or p == page+3 %}
-    <li class="page-item disabled"><span class="page-link">…</span></li>
+    <span class="pg-link disabled">…</span>
     {% endif %}
-    {% endfor %}
-    {% if page < total_pages %}
-    <li class="page-item">
-      <a class="page-link" href="?page={{ page+1 }}&search={{ search }}&date={{ date_filter }}">
-        <i class="fas fa-chevron-right"></i>
-      </a>
-    </li>
-    {% endif %}
-  </ul>
-</nav>
-<p class="text-center text-muted small">{{ total }} record{{ 's' if total != 1 }} total</p>
+  {% endfor %}
+  {% if page < total_pages %}
+  <a class="pg-link" href="?page={{ page+1 }}&search={{ search }}&date={{ date_filter }}">&#8250;</a>
+  {% endif %}
+</div>
+<p style="text-align:center;font-size:.7rem;color:var(--muted);margin-top:8px;">{{ total }} record{{ 's' if total != 1 }}</p>
 {% endif %}
 
 {% endblock %}
