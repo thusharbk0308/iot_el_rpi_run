@@ -34,7 +34,7 @@
   </ul>
 
   <div class="nav-right">
-    <span class="nav-user">{% if session.get('username') == 'admin' %}sudhanvakalgundi9845@gmail.com{% else %}{{ session.get('username','admin') }}{% endif %}</span>
+    <span class="nav-user">{{ session.get('username','admin') }}</span>
     <a href="/logout" class="nav-logout">Logout</a>
   </div>
 </nav>
