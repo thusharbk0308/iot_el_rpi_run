@@ -27,6 +27,10 @@
 html, body { height: 100%; }
 body {
   background: var(--bg);
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
   color: var(--text);
   font-family: 'Inter', -apple-system, sans-serif;
   font-size: 14px;
@@ -109,7 +113,7 @@ input, select, textarea, button { font-family: inherit; }
   bottom: -1px;
   left: 12px; right: 12px;
   height: 2px;
-  background: var(--text);
+  background: var(--blue);
   border-radius: 1px;
 }
 .nav-divider {
