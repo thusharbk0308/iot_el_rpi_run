@@ -1,149 +1,305 @@
 {% extends "base.html" %}
-{% block title %}Settings{% endblock %}
-{% block page_title %}<i class="fas fa-gear me-2 text-primary"></i>Settings{% endblock %}
+{% block title %}Settings — FaceVault{% endblock %}
 
 {% block content %}
 
-<div class="row g-3">
-<div class="col-lg-8">
-
-  <form method="POST" action="/settings">
-    <input type="hidden" name="action" value="save_settings">
-
-    <!-- Recognition -->
-    <div class="chart-card mb-3">
-      <div class="chart-title mb-3"><i class="fas fa-brain me-2"></i>Recognition</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Similarity Threshold</label>
-          <input type="number" name="SIMILARITY_THRESHOLD" value="{{ cfg.SIMILARITY_THRESHOLD }}"
-                 min="0.1" max="1.0" step="0.01" class="form-control form-control-sm settings-input">
-          <div class="form-text">Face match threshold (0.0–1.0). Higher = stricter.</div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Confirmation Time (seconds)</label>
-          <input type="number" name="RECOGNITION_CONFIRM_TIME" value="{{ cfg.RECOGNITION_CONFIRM_TIME }}"
-                 min="0.5" max="10.0" step="0.1" class="form-control form-control-sm settings-input">
-          <div class="form-text">Hold face for this long before unlocking.</div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Lock Open Duration (seconds)</label>
-          <input type="number" name="SERVO_OPEN_DURATION" value="{{ cfg.SERVO_OPEN_DURATION }}"
-                 min="1" max="30" step="0.5" class="form-control form-control-sm settings-input">
-          <div class="form-text">How long the door stays unlocked.</div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Unknown Snapshot Cooldown (seconds)</label>
-          <input type="number" name="UNKNOWN_COOLDOWN" value="{{ cfg.UNKNOWN_COOLDOWN }}"
-                 min="1" max="60" step="1" class="form-control form-control-sm settings-input">
-          <div class="form-text">Minimum time between snapshots of unknown persons.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Camera -->
-    <div class="chart-card mb-3">
-      <div class="chart-title mb-3"><i class="fas fa-camera me-2"></i>Camera</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Target FPS</label>
-          <input type="number" name="CAMERA_FPS" value="{{ cfg.CAMERA_FPS }}"
-                 min="5" max="30" step="1" class="form-control form-control-sm settings-input">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Servo GPIO Pin</label>
-          <input type="number" name="SERVO_GPIO_PIN" value="{{ cfg.SERVO_GPIO_PIN }}"
-                 min="1" max="40" step="1" class="form-control form-control-sm settings-input">
-        </div>
-      </div>
-    </div>
-
-    <!-- Email alerts -->
-    <div class="chart-card mb-3">
-      <div class="chart-title mb-3"><i class="fas fa-envelope me-2"></i>Email Alerts</div>
-
-      <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" role="switch"
-               id="email-toggle" name="EMAIL_ALERTS_ENABLED"
-               {% if cfg.EMAIL_ALERTS_ENABLED %}checked{% endif %}>
-        <label class="form-check-label" for="email-toggle">Enable Email Alerts</label>
-      </div>
-
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Sender Email (Gmail)</label>
-          <input type="email" name="EMAIL_SENDER" value="{{ cfg.EMAIL_SENDER }}"
-                 class="form-control form-control-sm settings-input" placeholder="you@gmail.com">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label small text-muted">App Password</label>
-          <input type="password" name="EMAIL_PASSWORD" value="{{ cfg.EMAIL_PASSWORD }}"
-                 class="form-control form-control-sm settings-input" placeholder="Gmail App Password">
-          <div class="form-text">Use a Gmail App Password, not your account password.</div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label small text-muted">Recipient Email</label>
-          <input type="email" name="EMAIL_RECIPIENT" value="{{ cfg.EMAIL_RECIPIENT }}"
-                 class="form-control form-control-sm settings-input" placeholder="alerts@example.com">
-        </div>
-        <div class="col-md-4">
-          <label class="form-label small text-muted">SMTP Server</label>
-          <input type="text" name="SMTP_SERVER" value="{{ cfg.SMTP_SERVER }}"
-                 class="form-control form-control-sm settings-input">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label small text-muted">SMTP Port</label>
-          <input type="number" name="SMTP_PORT" value="{{ cfg.SMTP_PORT }}"
-                 class="form-control form-control-sm settings-input">
-        </div>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-      <i class="fas fa-floppy-disk me-1"></i> Save Settings
-    </button>
-  </form>
-
+<!-- Page Header -->
+<div class="page-header" style="margin-bottom:28px;">
+  <div>
+    <h1 style="font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px;">
+      <i class="fas fa-gear" style="margin-right:10px;color:var(--accent);"></i>System Settings
+    </h1>
+    <p style="font-size:0.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:0.05em;">
+      CONFIGURE_ENGINE // FACEVAULT_v3.0
+    </p>
+  </div>
 </div>
 
-<!-- Change password card -->
+<div class="row g-3">
+<div class="col-lg-8">
+  <form method="POST" action="/settings" id="main-settings-form">
+    <input type="hidden" name="action" value="save_settings">
+
+    <!-- ── Recognition Settings ── -->
+    <div class="settings-card mb-3">
+      <div class="settings-card-header">
+        <div class="settings-card-icon" style="background:rgba(99,102,241,0.15);border-color:rgba(99,102,241,0.3);">
+          <i class="fas fa-brain" style="color:var(--accent);"></i>
+        </div>
+        <div>
+          <div class="settings-card-title">Recognition Engine</div>
+          <div class="settings-card-sub">FaceNet similarity & timing configuration</div>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="settings-field">
+          <label class="settings-label">
+            Similarity Threshold
+            <span class="settings-badge">0.0 – 1.0</span>
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-sliders settings-input-icon"></i>
+            <input type="number" name="SIMILARITY_THRESHOLD" value="{{ cfg.SIMILARITY_THRESHOLD }}"
+                   min="0.1" max="1.0" step="0.01" class="settings-input-field">
+          </div>
+          <span class="settings-hint">Higher value = stricter face matching</span>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">
+            Confirmation Hold Time
+            <span class="settings-badge">seconds</span>
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-clock settings-input-icon"></i>
+            <input type="number" name="RECOGNITION_CONFIRM_TIME" value="{{ cfg.RECOGNITION_CONFIRM_TIME }}"
+                   min="0.5" max="10.0" step="0.1" class="settings-input-field">
+          </div>
+          <span class="settings-hint">Hold face in frame before unlocking</span>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">
+            Lock Open Duration
+            <span class="settings-badge">seconds</span>
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-lock-open settings-input-icon"></i>
+            <input type="number" name="SERVO_OPEN_DURATION" value="{{ cfg.SERVO_OPEN_DURATION }}"
+                   min="1" max="30" step="0.5" class="settings-input-field">
+          </div>
+          <span class="settings-hint">How long the door remains unlocked</span>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">
+            Unknown Snapshot Cooldown
+            <span class="settings-badge">seconds</span>
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-camera settings-input-icon"></i>
+            <input type="number" name="UNKNOWN_COOLDOWN" value="{{ cfg.UNKNOWN_COOLDOWN }}"
+                   min="1" max="60" step="1" class="settings-input-field">
+          </div>
+          <span class="settings-hint">Minimum gap between unknown snapshots</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Camera & Hardware ── -->
+    <div class="settings-card mb-3">
+      <div class="settings-card-header">
+        <div class="settings-card-icon" style="background:rgba(34,211,238,0.12);border-color:rgba(34,211,238,0.3);">
+          <i class="fas fa-microchip" style="color:var(--accent2);"></i>
+        </div>
+        <div>
+          <div class="settings-card-title">Camera & Hardware</div>
+          <div class="settings-card-sub">GPIO pin mapping and frame rate</div>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="settings-field">
+          <label class="settings-label">
+            Target FPS
+            <span class="settings-badge">5 – 30</span>
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-film settings-input-icon"></i>
+            <input type="number" name="CAMERA_FPS" value="{{ cfg.CAMERA_FPS }}"
+                   min="5" max="30" step="1" class="settings-input-field">
+          </div>
+          <span class="settings-hint">Camera capture frame rate</span>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">
+            Servo GPIO Pin
+            <span class="settings-badge">BCM</span>
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-plug settings-input-icon"></i>
+            <input type="number" name="SERVO_GPIO_PIN" value="{{ cfg.SERVO_GPIO_PIN }}"
+                   min="1" max="40" step="1" class="settings-input-field">
+          </div>
+          <span class="settings-hint">BCM pin used for servo PWM signal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Email Alerts ── -->
+    <div class="settings-card mb-4">
+      <div class="settings-card-header">
+        <div class="settings-card-icon" style="background:rgba(251,146,60,0.12);border-color:rgba(251,146,60,0.3);">
+          <i class="fas fa-envelope" style="color:#fb923c;"></i>
+        </div>
+        <div>
+          <div class="settings-card-title">Email Alert System</div>
+          <div class="settings-card-sub">SMTP notification for unauthorised access attempts</div>
+        </div>
+        <div style="margin-left:auto;">
+          <label class="settings-toggle-wrap" title="Enable email alerts">
+            <input type="checkbox" id="email-toggle" name="EMAIL_ALERTS_ENABLED" class="settings-toggle-input"
+                   {% if cfg.EMAIL_ALERTS_ENABLED %}checked{% endif %}>
+            <span class="settings-toggle"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="settings-field">
+          <label class="settings-label">Sender Email (Gmail)</label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-at settings-input-icon"></i>
+            <input type="email" name="EMAIL_SENDER" value="{{ cfg.EMAIL_SENDER }}"
+                   class="settings-input-field" placeholder="you@gmail.com">
+          </div>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">
+            App Password
+            <span class="settings-badge">not account pwd</span>
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-key settings-input-icon"></i>
+            <input type="password" name="EMAIL_PASSWORD" value="{{ cfg.EMAIL_PASSWORD }}"
+                   class="settings-input-field" placeholder="Gmail App Password">
+          </div>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">Recipient Email</label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-inbox settings-input-icon"></i>
+            <input type="email" name="EMAIL_RECIPIENT" value="{{ cfg.EMAIL_RECIPIENT }}"
+                   class="settings-input-field" placeholder="alerts@example.com">
+          </div>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">
+            SMTP Server
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-server settings-input-icon"></i>
+            <input type="text" name="SMTP_SERVER" value="{{ cfg.SMTP_SERVER }}"
+                   class="settings-input-field">
+          </div>
+        </div>
+
+        <div class="settings-field">
+          <label class="settings-label">
+            SMTP Port
+          </label>
+          <div class="settings-input-wrap">
+            <i class="fas fa-hashtag settings-input-icon"></i>
+            <input type="number" name="SMTP_PORT" value="{{ cfg.SMTP_PORT }}"
+                   class="settings-input-field">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="settings-save-btn" id="save-settings-btn">
+      <i class="fas fa-floppy-disk"></i>
+      <span>Save Configuration</span>
+      <i class="fas fa-arrow-right" style="margin-left:auto;font-size:0.75rem;opacity:0.7;"></i>
+    </button>
+  </form>
+</div>
+
+<!-- Right column -->
 <div class="col-lg-4">
-  <div class="chart-card">
-    <div class="chart-title mb-3"><i class="fas fa-key me-2"></i>Change Password</div>
+
+  <!-- Change Password -->
+  <div class="settings-card mb-3">
+    <div class="settings-card-header">
+      <div class="settings-card-icon" style="background:rgba(234,179,8,0.12);border-color:rgba(234,179,8,0.3);">
+        <i class="fas fa-key" style="color:#facc15;"></i>
+      </div>
+      <div>
+        <div class="settings-card-title">Change Password</div>
+        <div class="settings-card-sub">Update admin credentials</div>
+      </div>
+    </div>
+
     <form method="POST" action="/settings">
       <input type="hidden" name="action" value="change_password">
-      <div class="mb-3">
-        <label class="form-label small text-muted">Current Password</label>
-        <input type="password" name="current_password" class="form-control form-control-sm settings-input" required>
+
+      <div class="settings-field mb-3">
+        <label class="settings-label">Current Password</label>
+        <div class="settings-input-wrap">
+          <i class="fas fa-lock settings-input-icon"></i>
+          <input type="password" name="current_password" class="settings-input-field" required placeholder="••••••••">
+        </div>
       </div>
-      <div class="mb-3">
-        <label class="form-label small text-muted">New Password</label>
-        <input type="password" name="new_password" class="form-control form-control-sm settings-input" required minlength="6">
+
+      <div class="settings-field mb-3">
+        <label class="settings-label">New Password</label>
+        <div class="settings-input-wrap">
+          <i class="fas fa-lock-open settings-input-icon"></i>
+          <input type="password" name="new_password" class="settings-input-field" required minlength="6" placeholder="min. 6 characters">
+        </div>
       </div>
-      <div class="mb-3">
-        <label class="form-label small text-muted">Confirm Password</label>
-        <input type="password" name="confirm_password" class="form-control form-control-sm settings-input" required>
+
+      <div class="settings-field mb-4">
+        <label class="settings-label">Confirm Password</label>
+        <div class="settings-input-wrap">
+          <i class="fas fa-check-circle settings-input-icon"></i>
+          <input type="password" name="confirm_password" class="settings-input-field" required placeholder="repeat new password">
+        </div>
       </div>
-      <button type="submit" class="btn btn-outline-warning btn-sm">
-        <i class="fas fa-lock me-1"></i> Update Password
+
+      <button type="submit" class="settings-pwd-btn">
+        <i class="fas fa-shield-halved"></i> Update Password
       </button>
     </form>
   </div>
 
-  <!-- Info box -->
-  <div class="chart-card mt-3">
-    <div class="chart-title mb-2"><i class="fas fa-circle-info me-2"></i>About</div>
-    <div class="info-table">
-      <div class="info-row"><span>System</span><span>FaceGuard v3.0</span></div>
-      <div class="info-row"><span>Model</span><span>FaceNet + MTCNN</span></div>
-      <div class="info-row"><span>Phase</span><span>3 — Dashboard</span></div>
+  <!-- About box -->
+  <div class="settings-card">
+    <div class="settings-card-header" style="margin-bottom:16px;">
+      <div class="settings-card-icon" style="background:rgba(34,211,238,0.1);border-color:rgba(34,211,238,0.25);">
+        <i class="fas fa-circle-info" style="color:var(--accent2);"></i>
+      </div>
+      <div>
+        <div class="settings-card-title">System Info</div>
+        <div class="settings-card-sub">FaceVault runtime details</div>
+      </div>
     </div>
-    <div class="alert alert-warning py-2 mt-3 small mb-0">
-      <i class="fas fa-triangle-exclamation me-1"></i>
-      Settings take effect immediately. Restart is not required.
+
+    <div class="about-table">
+      <div class="about-row">
+        <span class="about-key">System</span>
+        <span class="about-val">FaceVault v3.0</span>
+      </div>
+      <div class="about-row">
+        <span class="about-key">Detection</span>
+        <span class="about-val">MTCNN</span>
+      </div>
+      <div class="about-row">
+        <span class="about-key">Embeddings</span>
+        <span class="about-val">FaceNet</span>
+      </div>
+      <div class="about-row">
+        <span class="about-key">Hardware</span>
+        <span class="about-val">Raspberry Pi 4</span>
+      </div>
+      <div class="about-row">
+        <span class="about-key">Servo PWM</span>
+        <span class="about-val">pigpio daemon</span>
+      </div>
+    </div>
+
+    <div class="settings-notice mt-3">
+      <i class="fas fa-bolt"></i>
+      Settings apply immediately — no restart required.
     </div>
   </div>
-</div>
 
-</div>
+</div><!-- /col -->
+</div><!-- /row -->
+
 {% endblock %}

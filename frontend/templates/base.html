@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Face Value{% endblock %}</title>
+  <title>{% block title %}FaceVault{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link href="/static/css/style.css" rel="stylesheet">
@@ -13,7 +13,7 @@
 <!-- ── Top Navbar ─────────────────────────────── -->
 <nav class="navbar">
   <div class="nav-left">
-    <a href="/" class="nav-brand">Face <span>Value</span></a>
+    <a href="/" class="nav-brand">Face<span>Vault</span></a>
     <div class="nav-live-badge">
       <span class="nav-live-dot"></span>SYSTEM LIVE
     </div>
@@ -24,6 +24,8 @@
     <li><a href="/camera" class="{% if request.path == '/camera' %}active{% endif %}">Live Camera</a></li>
     <li><a href="/control" class="{% if request.path == '/control' %}active{% endif %}">Control Panel</a></li>
     <li><a href="/logs" class="{% if request.path == '/logs' %}active{% endif %}">Access Logs</a></li>
+    <li><a href="/unknown" class="{% if request.path == '/unknown' %}active{% endif %}" title="Unknown Visitors">
+      <i class="fas fa-user-secret" style="font-size:.75rem;"></i></a></li>
     <li class="nav-divider"></li>
     <li><a href="/users" class="{% if request.path.startswith('/users') %}active{% endif %}">
       <i class="fas fa-users" style="font-size:.75rem;"></i></a></li>
@@ -61,8 +63,8 @@
 
 <!-- ── Footer ─────────────────────────────────── -->
 <footer class="site-footer">
-  <span>© 2026 Face Value. All Rights Reserved.</span>
-  <span>SECURE_EDGE_ACCESS_SYS // v1.0.0</span>
+  <span>© 2026 FaceVault. All Rights Reserved.</span>
+  <span>SECURE_EDGE_ACCESS_SYS // v3.0.0</span>
 </footer>
 
 <!-- Toast container -->
