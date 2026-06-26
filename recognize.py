@@ -25,11 +25,7 @@ lock_status = "CLOSED"
 system_state = "LOCKED"
 
 # Initialize Servo Controller
-servo = ServoController(
-    pin=config.SERVO_GPIO_PIN,
-    min_angle=config.SERVO_CLOSED_ANGLE,
-    max_angle=config.SERVO_OPEN_ANGLE
-)
+servo = ServoController(pin=config.SERVO_GPIO_PIN)
 
 # HTML Template with dark modern aesthetics matching our guidelines
 HTML_PAGE = """
