@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}<i class="fas fa-gear me-2 text-primary"></i>Settings{% endblock %}
+
+{% block content %}
+
+<div class="row g-3">
+<div class="col-lg-8">
+
+  <form method="POST" action="/settings">
+    <input type="hidden" name="action" value="save_settings">
+
+    <!-- Recognition -->
+    <div class="chart-card mb-3">
+      <div class="chart-title mb-3"><i class="fas fa-brain me-2"></i>Recognition</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Similarity Threshold</label>
+          <input type="number" name="SIMILARITY_THRESHOLD" value="{{ cfg.SIMILARITY_THRESHOLD }}"
+                 min="0.1" max="1.0" step="0.01" class="form-control form-control-sm settings-input">
+          <div class="form-text">Face match threshold (0.0–1.0). Higher = stricter.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Confirmation Time (seconds)</label>
+          <input type="number" name="RECOGNITION_CONFIRM_TIME" value="{{ cfg.RECOGNITION_CONFIRM_TIME }}"
+                 min="0.5" max="10.0" step="0.1" class="form-control form-control-sm settings-input">
+          <div class="form-text">Hold face for this long before unlocking.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Lock Open Duration (seconds)</label>
+          <input type="number" name="SERVO_OPEN_DURATION" value="{{ cfg.SERVO_OPEN_DURATION }}"
+                 min="1" max="30" step="0.5" class="form-control form-control-sm settings-input">
+          <div class="form-text">How long the door stays unlocked.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Unknown Snapshot Cooldown (seconds)</label>
+          <input type="number" name="UNKNOWN_COOLDOWN" value="{{ cfg.UNKNOWN_COOLDOWN }}"
+                 min="1" max="60" step="1" class="form-control form-control-sm settings-input">
+          <div class="form-text">Minimum time between snapshots of unknown persons.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera -->
+    <div class="chart-card mb-3">
+      <div class="chart-title mb-3"><i class="fas fa-camera me-2"></i>Camera</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Target FPS</label>
+          <input type="number" name="CAMERA_FPS" value="{{ cfg.CAMERA_FPS }}"
+                 min="5" max="30" step="1" class="form-control form-control-sm settings-input">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Servo GPIO Pin</label>
+          <input type="number" name="SERVO_GPIO_PIN" value="{{ cfg.SERVO_GPIO_PIN }}"
+                 min="1" max="40" step="1" class="form-control form-control-sm settings-input">
+        </div>
+      </div>
+    </div>
+
+    <!-- Email alerts -->
+    <div class="chart-card mb-3">
+      <div class="chart-title mb-3"><i class="fas fa-envelope me-2"></i>Email Alerts</div>
+
+      <div class="form-check form-switch mb-3">
+        <input class="form-check-input" type="checkbox" role="switch"
+               id="email-toggle" name="EMAIL_ALERTS_ENABLED"
+               {% if cfg.EMAIL_ALERTS_ENABLED %}checked{% endif %}>
+        <label class="form-check-label" for="email-toggle">Enable Email Alerts</label>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Sender Email (Gmail)</label>
+          <input type="email" name="EMAIL_SENDER" value="{{ cfg.EMAIL_SENDER }}"
+                 class="form-control form-control-sm settings-input" placeholder="you@gmail.com">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">App Password</label>
+          <input type="password" name="EMAIL_PASSWORD" value="{{ cfg.EMAIL_PASSWORD }}"
+                 class="form-control form-control-sm settings-input" placeholder="Gmail App Password">
+          <div class="form-text">Use a Gmail App Password, not your account password.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Recipient Email</label>
+          <input type="email" name="EMAIL_RECIPIENT" value="{{ cfg.EMAIL_RECIPIENT }}"
+                 class="form-control form-control-sm settings-input" placeholder="alerts@example.com">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small text-muted">SMTP Server</label>
+          <input type="text" name="SMTP_SERVER" value="{{ cfg.SMTP_SERVER }}"
+                 class="form-control form-control-sm settings-input">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small text-muted">SMTP Port</label>
+          <input type="number" name="SMTP_PORT" value="{{ cfg.SMTP_PORT }}"
+                 class="form-control form-control-sm settings-input">
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-floppy-disk me-1"></i> Save Settings
+    </button>
+  </form>
+
+</div>
+
+<!-- Change password card -->
+<div class="col-lg-4">
+  <div class="chart-card">
+    <div class="chart-title mb-3"><i class="fas fa-key me-2"></i>Change Password</div>
+    <form method="POST" action="/settings">
+      <input type="hidden" name="action" value="change_password">
+      <div class="mb-3">
+        <label class="form-label small text-muted">Current Password</label>
+        <input type="password" name="current_password" class="form-control form-control-sm settings-input" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label small text-muted">New Password</label>
+        <input type="password" name="new_password" class="form-control form-control-sm settings-input" required minlength="6">
+      </div>
+      <div class="mb-3">
+        <label class="form-label small text-muted">Confirm Password</label>
+        <input type="password" name="confirm_password" class="form-control form-control-sm settings-input" required>
+      </div>
+      <button type="submit" class="btn btn-outline-warning btn-sm">
+        <i class="fas fa-lock me-1"></i> Update Password
+      </button>
+    </form>
+  </div>
+
+  <!-- Info box -->
+  <div class="chart-card mt-3">
+    <div class="chart-title mb-2"><i class="fas fa-circle-info me-2"></i>About</div>
+    <div class="info-table">
+      <div class="info-row"><span>System</span><span>FaceGuard v3.0</span></div>
+      <div class="info-row"><span>Model</span><span>FaceNet + MTCNN</span></div>
+      <div class="info-row"><span>Phase</span><span>3 — Dashboard</span></div>
+    </div>
+    <div class="alert alert-warning py-2 mt-3 small mb-0">
+      <i class="fas fa-triangle-exclamation me-1"></i>
+      Settings take effect immediately. Restart is not required.
+    </div>
+  </div>
+</div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Live Camera{% endblock %}
+{% block page_title %}<i class="fas fa-camera me-2 text-primary"></i>Live Camera{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+
+  <!-- Stream -->
+  <div class="col-lg-8">
+    <div class="chart-card p-0 overflow-hidden">
+      <div class="stream-header">
+        <span class="stream-dot"></span>
+        <span>LIVE</span>
+        <span id="stream-fps" class="ms-auto text-muted small"></span>
+      </div>
+      <img id="stream" src="/video_feed" alt="Live Camera Feed"
+           onerror="this.src='/static/images/no_signal.png'"
+           style="width:100%;display:block;background:#000;">
+    </div>
+    <!-- Action buttons -->
+    <div class="d-flex gap-2 mt-3 flex-wrap">
+      <button class="btn btn-outline-primary" onclick="refreshStream()">
+        <i class="fas fa-rotate-right me-1"></i> Refresh Stream
+      </button>
+      <button class="btn btn-outline-warning" id="btn-retrain" onclick="triggerRetrain()">
+        <i class="fas fa-database me-1"></i> Reload Database
+      </button>
+    </div>
+  </div>
+
+  <!-- Live info panel -->
+  <div class="col-lg-4">
+    <div class="chart-card h-100">
+      <div class="chart-title"><i class="fas fa-circle-info me-2"></i>Recognition Info</div>
+
+      <div class="mt-3">
+        <div class="cam-info-row">
+          <span class="cam-info-label">Person</span>
+          <span class="cam-info-value" id="cam-person">—</span>
+        </div>
+        <div class="cam-info-row">
+          <span class="cam-info-label">Confidence</span>
+          <span class="cam-info-value" id="cam-conf">—</span>
+        </div>
+        <div class="cam-info-row">
+          <span class="cam-info-label">State</span>
+          <span class="cam-info-value" id="cam-state">—</span>
+        </div>
+        <div class="cam-info-row">
+          <span class="cam-info-label">Lock</span>
+          <span class="cam-info-value" id="cam-lock">—</span>
+        </div>
+        <div class="cam-info-row">
+          <span class="cam-info-label">FPS</span>
+          <span class="cam-info-value" id="cam-fps">—</span>
+        </div>
+      </div>
+
+      <!-- Confirm timer -->
+      <div id="cam-timer-wrap" style="display:none;" class="mt-4">
+        <div class="cam-info-label mb-1">Confirming…</div>
+        <div class="progress" style="height:10px;">
+          <div id="cam-timer-bar" class="progress-bar bg-warning progress-bar-striped progress-bar-animated"
+               style="width:0%;transition:width .5s;"></div>
+        </div>
+        <div class="text-muted small mt-1" id="cam-timer-text"></div>
+      </div>
+
+      <!-- Retrain status -->
+      <div id="retrain-status" class="mt-4" style="display:none;">
+        <div class="alert alert-info py-2 mb-0 small">
+          <i class="fas fa-spinner fa-spin me-1"></i>
+          <span id="retrain-msg">Retraining…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  initCamera();
+</script>
+{% endblock %}

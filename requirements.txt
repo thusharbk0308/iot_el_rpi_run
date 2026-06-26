@@ -6,3 +6,4 @@ tqdm
 flask
 numpy
 pigpio
+psutil

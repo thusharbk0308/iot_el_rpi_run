@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}{{ user.name }}{% endblock %}
+{% block page_title %}
+  <a href="/users" class="text-muted me-2" style="text-decoration:none;">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+  <i class="fas fa-user me-2 text-primary"></i>{{ user.name }}
+{% endblock %}
+
+{% block content %}
+
+<!-- User header -->
+<div class="chart-card mb-4">
+  <div class="d-flex align-items-center gap-4 flex-wrap">
+    <div class="user-detail-avatar">
+      {% if images %}
+      <img src="/media/dataset/{{ user.name }}/{{ images[0] }}" alt="{{ user.name }}"
+           onerror="this.src='/static/images/avatar.png'">
+      {% else %}
+      <div style="font-size:3rem;color:var(--color-muted);"><i class="fas fa-user"></i></div>
+      {% endif %}
+    </div>
+    <div>
+      <h3 class="mb-1">{{ user.name }}</h3>
+      <div class="text-muted mb-2">
+        <i class="fas fa-images me-1"></i>{{ images|length }} image{{ 's' if images|length != 1 }}
+        &nbsp;·&nbsp;
+        {% if user.enabled %}
+        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">ACTIVE</span>
+        {% else %}
+        <span class="badge bg-secondary bg-opacity-20 text-secondary border border-secondary border-opacity-25">DISABLED</span>
+        {% endif %}
+        {% if user.created_at %}
+        &nbsp;·&nbsp; Enrolled {{ user.created_at[:10] }}
+        {% endif %}
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-sm btn-outline-primary" id="btn-retrain-detail" onclick="triggerRetrain()">
+          <i class="fas fa-rotate-right me-1"></i> Retrain Database
+        </button>
+        <button class="btn btn-sm {% if user.enabled %}btn-outline-warning{% else %}btn-outline-success{% endif %}"
+                onclick="toggleUser('{{ user.name }}', {{ 'false' if user.enabled else 'true' }})">
+          <i class="fas fa-{% if user.enabled %}ban{% else %}check{% endif %} me-1"></i>
+          {{ 'Disable User' if user.enabled else 'Enable User' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image grid -->
+{% if images %}
+<div class="row g-3">
+  {% for img in images %}
+  <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6" id="img-card-{{ loop.index }}">
+    <div class="unknown-card">
+      <div class="unknown-img-wrap">
+        <img src="/media/dataset/{{ user.name }}/{{ img }}" alt="{{ img }}" class="unknown-img"
+             onerror="this.parentElement.innerHTML='<div class=\'no-img\'><i class=\'fas fa-image-slash\'></i></div>'">
+      </div>
+      <div class="unknown-info">
+        <div class="unknown-time small text-truncate" title="{{ img }}">{{ img }}</div>
+        <div class="unknown-actions mt-2">
+          <button class="btn btn-xs btn-outline-danger"
+                  onclick="deleteImage('{{ user.name }}', '{{ img }}', {{ loop.index }})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <i class="fas fa-image-slash"></i>
+  <h4>No Images Found</h4>
+  <p>Run <code>python capture.py</code> to capture enrollment images for this user.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleUser(name, enabled) {
+  fetch('/api/set_user_enabled', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, enabled})
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      showToast(`${name} ${enabled ? 'enabled' : 'disabled'}.`, 'success');
+      setTimeout(() => location.reload(), 700);
+    }
+  });
+}
+
+function deleteImage(name, filename, idx) {
+  if (!confirm(`Delete image "${filename}"?`)) return;
+  fetch('/api/delete_user_image', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name, filename})
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      document.getElementById('img-card-' + idx)?.remove();
+      showToast('Image deleted.', 'success');
+    }
+  });
+}
+</script>
+{% endblock %}
