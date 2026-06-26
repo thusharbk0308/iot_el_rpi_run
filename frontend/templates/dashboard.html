@@ -30,10 +30,6 @@
     <div class="stat-key">Engine FPS</div>
     <div class="stat-val blue" id="h-fps">—</div>
   </div>
-  <div class="stat-item">
-    <div class="stat-key">Mode</div>
-    <div class="stat-val" id="h-mode" style="color:var(--muted);">AUTO</div>
-  </div>
   <div class="stat-clock" id="h-clock"></div>
 </div>
 
@@ -81,7 +77,6 @@
     fetch('/api/stats').then(r => r.json()).then(d => {
       const stateEl = document.getElementById('h-state');
       const lockEl  = document.getElementById('h-lock');
-      const modeEl  = document.getElementById('h-mode');
 
       if (stateEl) {
         stateEl.textContent = d.system_state || '—';
@@ -96,11 +91,6 @@
 
       const users = document.getElementById('h-users');
       if (users) users.textContent = d.authorized_users ?? '—';
-
-      if (modeEl) {
-        modeEl.textContent  = d.manual_mode ? 'MANUAL' : 'AUTO';
-        modeEl.style.color  = d.manual_mode ? 'var(--yellow)' : 'var(--muted)';
-      }
     }).catch(() => {});
   }
 

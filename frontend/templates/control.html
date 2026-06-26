@@ -6,13 +6,15 @@
 
   <!-- Left: Manual override panel -->
   <div class="manual-card">
-    <div class="manual-title">Manual Override</div>
-    <div class="manual-sub">Open or lock the door remotely via command guard</div>
-
-    <!-- Mode indicator pills -->
-    <div class="mode-bar">
-      <button class="mode-pill" id="pill-auto" onclick="setAutoMode()">AUTO</button>
-      <button class="mode-pill" id="pill-manual">MANUAL</button>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;">
+      <div style="text-align:left;">
+        <div class="manual-title">Manual Override</div>
+        <div class="manual-sub">Open lock remotely via API command guard</div>
+      </div>
+      <div class="mode-bar" style="margin-bottom:0;">
+        <button class="mode-pill" id="pill-auto" onclick="setAutoMode()">AUTO</button>
+        <button class="mode-pill" id="pill-manual" onclick="doManualLock()">MANUAL</button>
+      </div>
     </div>
 
     <!-- Big circular button -->
@@ -60,22 +62,6 @@
       <span id="tl-note">
         Remote PWM Command Guard active. State transitions are monitored in log entries.
       </span>
-    </div>
-
-    <!-- Mini stats below telemetry -->
-    <div style="margin-top:24px;display:flex;flex-direction:column;gap:0;">
-      <div class="info-row">
-        <span>Engine FPS</span><span id="tl-fps" style="font-weight:600;">—</span>
-      </div>
-      <div class="info-row">
-        <span>Mode</span><span id="tl-mode" style="font-weight:600;color:var(--muted);">AUTO</span>
-      </div>
-      <div class="info-row">
-        <span>Authorized Users</span><span id="tl-users" style="font-weight:600;">—</span>
-      </div>
-      <div class="info-row">
-        <span>Unlocks Today</span><span id="tl-unlocks" style="font-weight:600;">—</span>
-      </div>
     </div>
   </div>
 
